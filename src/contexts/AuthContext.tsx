@@ -25,165 +25,94 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  // Computed values
-  const isAdmin = user?.role === "admin";
-  const isLead = user?.role === "lead" || user?.role === "admin";
 
   useEffect(() => {
-    let isMounted = true;
-    console.log("AuthProvider mounting...");
+    // Check initial auth state
+    checkAuthState();
 
-    const getSession = async () => {
-      console.log("getSession started");
-      try {
-        const {
-          data: { session: initialSession },
-          error,
-        } = await supabase.auth.getSession();
-        console.log("getSession completed:", {
-          session: !!initialSession,
-          error,
-        });
-
-        if (!isMounted) {
-          console.log("Component unmounted, skipping state update");
-          return;
-        }
-
-        if (error) {
-          console.error("Error getting session:", error);
-          setError(error.message);
-          setLoading(false);
-        } else {
-          setSession(initialSession);
-          if (initialSession?.user) {
-            console.log("User found, checking permissions...");
-            try {
-              const authUser = await checkUserPermissions(initialSession.user);
-              console.log("Permission check completed:", authUser);
-              if (isMounted) setUser(authUser);
-            } catch (err) {
-              console.error("Permission check failed (initial):", err);
-              if (isMounted) setError("Permission check failed");
-            }
-          } else {
-            console.log("No user in session");
-          }
-          if (isMounted) setLoading(false);
-        }
-      } catch (err) {
-        console.error("Error in getSession:", err);
-        if (isMounted) {
-          setError("Failed to initialize authentication");
-          setLoading(false);
-        }
-      }
-    };
-
-    getSession();
-
+    // Listen for auth changes (login/logout)
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("Auth state changed:", event, session?.user?.email);
-
-      if (!isMounted) return;
-
-      setSession(session);
-      setError(null);
-
+      console.log("Auth event:", event);
       if (session?.user) {
-        setLoading(true);
-        try {
-          console.log("Auth state change - checking permissions...");
-          const authUser = await checkUserPermissions(session.user);
-          console.log("Auth state change - permission check completed");
-          if (isMounted) setUser(authUser);
-        } catch (err) {
-          console.error("Permission check failed (onAuthStateChange):", err);
-          if (isMounted) setError("Permission check failed");
-        } finally {
-          if (isMounted) setLoading(false);
-        }
+        await setUserWithPermissions(session.user);
       } else {
-        console.log("Auth state change - no user");
-        if (isMounted) {
-          setUser(null);
-          setLoading(false);
-        }
+        setUser(null);
+        setLoading(false);
       }
     });
 
-    return () => {
-      console.log("AuthProvider unmounting...");
-      isMounted = false;
-      subscription.unsubscribe();
-    };
+    return () => subscription.unsubscribe();
   }, []);
-  const signIn = async (email: string, password: string) => {
+
+  const checkAuthState = async () => {
     try {
-      setLoading(true);
-      setError(null);
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
 
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        setError(error.message);
+      if (session?.user) {
+        await setUserWithPermissions(session.user);
+      } else {
         setLoading(false);
-        return { error: error.message };
       }
-
-      return {};
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "An unexpected error occurred";
-      setError(errorMessage);
+    } catch (error) {
+      console.error("Auth check failed:", error);
       setLoading(false);
-      return { error: errorMessage };
     }
   };
 
-  const signOut = async () => {
+  const setUserWithPermissions = async (user: User) => {
     try {
-      setLoading(true);
-      setError(null);
+      // Get user role from database using ID (more reliable)
+      const { data: userData } = await supabase
+        .from("users")
+        .select("role")
+        .eq("user_id", user.id)
+        .single();
 
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        setError(error.message);
-        console.error("Error signing out:", error);
-      }
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "An unexpected error occurred";
-      setError(errorMessage);
-      console.error("Error in signOut:", err);
+      setUser({
+        ...user,
+        role: userData?.role || "user",
+      });
+    } catch (error) {
+      console.error("Failed to get user permissions:", error);
+      setUser({
+        ...user,
+        role: "user", // Fallback
+      });
     } finally {
       setLoading(false);
     }
   };
 
+  const signIn = async (email: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    return { error: error?.message };
+  };
+
+  const signOut = async () => {
+    await supabase.auth.signOut();
+  };
+
   const value = {
     user,
-    session,
+    session: user ? { user } : null, // Simplified session
     loading,
-    error,
+    error: null, // Handle errors differently
     signIn,
     signOut,
-    isAdmin,
-    isLead,
+    isAdmin: user?.role === "admin",
+    isLead: user?.role === "lead" || user?.role === "admin",
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
-
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
