@@ -6,8 +6,12 @@ import {
   TrendingUp, 
   Search,
   Database,
-  Home
+  Home,
+  Settings,
+  LogOut,
+  User
 } from 'lucide-react'
+import { useAuth } from '@/contexts/AuthContext'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -16,13 +20,24 @@ interface LayoutProps {
 }
 
 export default function Layout({ children, currentView, onViewChange }: LayoutProps) {
+  const { user, signOut, isAdmin } = useAuth()
+  
   const navigationItems = [
     { id: 'overview', label: 'Overview', icon: Home },
     { id: 'role-analysis', label: 'Role Analysis', icon: Briefcase },
     { id: 'company-analysis', label: 'Company Analysis', icon: Building2 },
     { id: 'top-performers', label: 'Top Performers', icon: TrendingUp },
     { id: 'data-explorer', label: 'Data Explorer', icon: Search },
+    ...(isAdmin ? [{ id: 'admin-controls', label: 'Admin Controls', icon: Settings }] : []),
   ]
+
+  const handleSignOut = async () => {
+    try {
+      await signOut()
+    } catch (error) {
+      console.error('Error signing out:', error)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -40,6 +55,32 @@ export default function Layout({ children, currentView, onViewChange }: LayoutPr
               </div>
             </div>
             <div className="flex items-center space-x-4">
+              {user && (
+                <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-2 text-sm text-gray-600">
+                    <User className="h-4 w-4" />
+                    <span>{user.email}</span>
+                    {user.role && (
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        user.role === 'admin' 
+                          ? 'bg-red-100 text-red-800' 
+                          : user.role === 'lead'
+                          ? 'bg-blue-100 text-blue-800'
+                          : 'bg-gray-100 text-gray-800'
+                      }`}>
+                        {user.role}
+                      </span>
+                    )}
+                  </div>
+                  <button
+                    onClick={handleSignOut}
+                    className="flex items-center space-x-1 text-sm text-gray-600 hover:text-gray-900 px-3 py-1 rounded-md hover:bg-gray-100 transition-colors"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    <span>Sign Out</span>
+                  </button>
+                </div>
+              )}
               <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
                 Live Database
               </div>
