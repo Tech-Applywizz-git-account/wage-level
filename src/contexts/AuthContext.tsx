@@ -8,11 +8,15 @@ import React, {
   ReactNode,
 } from "react";
 import { supabase, AuthUser } from "@/lib/supabase";
-import type { Session } from "@supabase/supabase-js";
+import type { Session, User } from "@supabase/supabase-js";
+
+interface SimplifiedSession {
+  user: AuthUser;
+}
 
 interface AuthContextType {
   user: AuthUser | null;
-  session: Session | null;
+  session: SimplifiedSession | null;
   loading: boolean;
   error: string | null;
   signIn: (email: string, password: string) => Promise<{ error?: string }>;
