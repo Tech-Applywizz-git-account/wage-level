@@ -79,9 +79,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       setSession(session);
       setError(null);
-      setLoading(true);
 
       if (session?.user) {
+        setLoading(true); // only set when checking permissions
         try {
           const authUser = await checkUserPermissions(session.user);
           if (isMounted) setUser(authUser);
@@ -121,7 +121,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { error: error.message };
       }
 
-      // Let onAuthStateChange handle setting user/session
       return {};
     } catch (err) {
       const errorMessage =
