@@ -77,7 +77,7 @@ export async function checkUserPermissions(user: User | null): Promise<AuthUser 
   if (!user) return null
 
   try {
-    const role = await getUserRole(user.id)
+    const role = await getUserRole(user.email || '')
     return {
       ...user,
       role

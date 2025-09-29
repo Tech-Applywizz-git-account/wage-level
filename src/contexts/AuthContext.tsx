@@ -28,26 +28,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isLead = user?.role === 'lead' || user?.role === 'admin'
 
   useEffect(() => {
+    let isMounted = true
+    
     // Get initial session
     const getSession = async () => {
       try {
         const { data: { session: initialSession }, error } = await supabase.auth.getSession()
         
+        if (!isMounted) return
+        
         if (error) {
           console.error('Error getting session:', error)
           setError(error.message)
+          setLoading(false)
         } else {
           setSession(initialSession)
           if (initialSession?.user) {
             const authUser = await checkUserPermissions(initialSession.user)
-            setUser(authUser)
+            if (isMounted) {
+              setUser(authUser)
+              setLoading(false)
+            }
+          } else {
+            setLoading(false)
           }
         }
       } catch (err) {
         console.error('Error in getSession:', err)
-        setError('Failed to initialize authentication')
-      } finally {
-        setLoading(false)
+        if (isMounted) {
+          setError('Failed to initialize authentication')
+          setLoading(false)
+        }
       }
     }
 
@@ -58,21 +69,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       async (event, session) => {
         console.log('Auth state changed:', event, session?.user?.email)
         
+        if (!isMounted) return
+        
         setSession(session)
         setError(null)
 
         if (session?.user) {
+          // Only set loading to false after user permissions are checked
           const authUser = await checkUserPermissions(session.user)
-          setUser(authUser)
+          if (isMounted) {
+            setUser(authUser)
+            setLoading(false)
+          }
         } else {
           setUser(null)
+          setLoading(false)
         }
-        
-        setLoading(false)
       }
     )
 
-    return () => subscription.unsubscribe()
+    return () => {
+      isMounted = false
+      subscription.unsubscribe()
+    }
   }, [])
 
   const signIn = async (email: string, password: string) => {
@@ -87,17 +106,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (error) {
         setError(error.message)
+        setLoading(false)
         return { error: error.message }
       }
 
       // User and session will be set by the onAuthStateChange listener
+      // Don't set loading to false here as onAuthStateChange will handle it
       return {}
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred'
       setError(errorMessage)
-      return { error: errorMessage }
-    } finally {
       setLoading(false)
+      return { error: errorMessage }
     }
   }
 
@@ -110,16 +130,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       if (error) {
         setError(error.message)
+        setLoading(false)
         console.error('Error signing out:', error)
       }
       
       // User and session will be cleared by the onAuthStateChange listener
+      // Don't set loading to false here as onAuthStateChange will handle it
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred'
       setError(errorMessage)
-      console.error('Error in signOut:', err)
-    } finally {
       setLoading(false)
+      console.error('Error in signOut:', err)
     }
   }
 
