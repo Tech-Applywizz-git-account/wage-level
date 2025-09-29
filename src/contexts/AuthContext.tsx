@@ -10,13 +10,9 @@ import React, {
 import { supabase, AuthUser } from "@/lib/supabase";
 import type { Session, User } from "@supabase/supabase-js";
 
-interface SimplifiedSession {
-  user: AuthUser;
-}
-
 interface AuthContextType {
   user: AuthUser | null;
-  session: SimplifiedSession | null;
+  session: any;
   loading: boolean;
   error: string | null;
   signIn: (email: string, password: string) => Promise<{ error?: string }>;
