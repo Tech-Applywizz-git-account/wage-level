@@ -35,36 +35,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let isMounted = true;
+    console.log("AuthProvider mounting...");
 
     const getSession = async () => {
+      console.log("getSession started");
       try {
         const {
           data: { session: initialSession },
           error,
         } = await supabase.auth.getSession();
+        console.log("getSession completed:", {
+          session: !!initialSession,
+          error,
+        });
 
-        if (!isMounted) return;
+        if (!isMounted) {
+          console.log("Component unmounted, skipping state update");
+          return;
+        }
 
         if (error) {
           console.error("Error getting session:", error);
           setError(error.message);
+          setLoading(false);
         } else {
           setSession(initialSession);
           if (initialSession?.user) {
+            console.log("User found, checking permissions...");
             try {
               const authUser = await checkUserPermissions(initialSession.user);
+              console.log("Permission check completed:", authUser);
               if (isMounted) setUser(authUser);
             } catch (err) {
               console.error("Permission check failed (initial):", err);
               if (isMounted) setError("Permission check failed");
             }
+          } else {
+            console.log("No user in session");
           }
+          if (isMounted) setLoading(false);
         }
       } catch (err) {
         console.error("Error in getSession:", err);
-        if (isMounted) setError("Failed to initialize authentication");
-      } finally {
-        if (isMounted) setLoading(false);
+        if (isMounted) {
+          setError("Failed to initialize authentication");
+          setLoading(false);
+        }
       }
     };
 
@@ -81,9 +97,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setError(null);
 
       if (session?.user) {
-        setLoading(true); // only set when checking permissions
+        setLoading(true);
         try {
+          console.log("Auth state change - checking permissions...");
           const authUser = await checkUserPermissions(session.user);
+          console.log("Auth state change - permission check completed");
           if (isMounted) setUser(authUser);
         } catch (err) {
           console.error("Permission check failed (onAuthStateChange):", err);
@@ -92,6 +110,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           if (isMounted) setLoading(false);
         }
       } else {
+        console.log("Auth state change - no user");
         if (isMounted) {
           setUser(null);
           setLoading(false);
@@ -100,11 +119,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     return () => {
+      console.log("AuthProvider unmounting...");
       isMounted = false;
       subscription.unsubscribe();
     };
   }, []);
-
   const signIn = async (email: string, password: string) => {
     try {
       setLoading(true);
