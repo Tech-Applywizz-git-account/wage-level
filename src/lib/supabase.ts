@@ -53,32 +53,20 @@ export interface AuthUser extends User {
 }
 
 // Role checking functions
-export async function getUserRole(userId: string): Promise<'admin' | 'lead' | 'user'> {
+export async function getUserRole(email: string): Promise<'admin' | 'lead' | 'user'> {
   try {
-    // Check if user exists in admins table
-    const { data: adminData, error: adminError } = await supabase
-      .from('admins')
-      .select('id')
-      .eq('user_id', userId)
+    const { data: userData, error } = await supabase
+      .from('users')
+      .select('role')
+      .eq('email', email)
       .single()
 
-    if (!adminError && adminData) {
-      return 'admin'
+    if (error) {
+      return 'user';
     }
 
-    // Check if user exists in leads table
-    const { data: leadData, error: leadError } = await supabase
-      .from('leads')
-      .select('id')
-      .eq('user_id', userId)
-      .single()
-
-    if (!leadError && leadData) {
-      return 'lead'
-    }
-
-    // Default role is user
-    return 'user'
+    // Return the role from the database, fallback to 'user' if undefined
+    return userData?.role || 'user';
   } catch (error) {
     console.error('Error checking user role:', error)
     return 'user'
