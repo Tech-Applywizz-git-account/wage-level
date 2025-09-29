@@ -94,36 +94,3 @@ export async function checkUserPermissions(
     };
   }
 }
-
-export async function checkUserPermissions(
-  user: User | null,
-): Promise<AuthUser | null> {
-  console.log("checkUserPermissions called with user:", user);
-  console.log("User email:", user?.email);
-
-  if (!user) return null;
-
-  // Check if email exists
-  if (!user.email) {
-    console.error("No email found in user object:", user);
-    return {
-      ...user,
-      role: "user",
-    };
-  }
-
-  try {
-    const role = await getUserRole(user.email);
-    console.log("Retrieved role:", role);
-    return {
-      ...user,
-      role,
-    };
-  } catch (error) {
-    console.error("Error checking user permissions:", error);
-    return {
-      ...user,
-      role: "user",
-    };
-  }
-}
