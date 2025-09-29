@@ -7,8 +7,8 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
-import { supabase, AuthUser, checkUserPermissions } from "@/lib/supabase";
-import type { Session } from "@supabase/supabase-js";
+import { supabase, AuthUser } from "@/lib/supabase";
+import type { Session, User } from "@supabase/supabase-js";
 
 interface AuthContextType {
   user: AuthUser | null;
@@ -25,6 +25,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -36,6 +37,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Auth event:", event);
+      setSession(session);
       if (session?.user) {
         await setUserWithPermissions(session.user);
       } else {
@@ -53,6 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         data: { session },
       } = await supabase.auth.getSession();
 
+      setSession(session);
       if (session?.user) {
         await setUserWithPermissions(session.user);
       } else {
@@ -102,7 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const value = {
     user,
-    session: user ? { user } : null, // Simplified session
+    session,
     loading,
     error: null, // Handle errors differently
     signIn,
