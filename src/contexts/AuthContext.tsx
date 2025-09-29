@@ -7,7 +7,7 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
-import { supabase, AuthUser, checkUserPermissions } from "@/lib/supabase";
+import { supabase, AuthUser } from "@/lib/supabase";
 import type { Session } from "@supabase/supabase-js";
 
 interface AuthContextType {
