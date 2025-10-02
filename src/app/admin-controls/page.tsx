@@ -1,128 +1,111 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Settings, Users, Shield, Database, BarChart3, Plus, Copy, Check, AlertCircle, X } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
-import { useAuth } from '@/contexts/AuthContext'
+import { useState } from "react";
+import {
+  Settings,
+  Users,
+  Shield,
+  Database,
+  BarChart3,
+  Plus,
+  Copy,
+  Check,
+  AlertCircle,
+  X,
+} from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function AdminControls() {
-  const { isAdmin } = useAuth()
-  const [showCreateUser, setShowCreateUser] = useState(false)
-  const [newUserEmail, setNewUserEmail] = useState('')
-  const [newUserRole, setNewUserRole] = useState<'admin' | 'lead'>('lead')
-  const [isCreatingUser, setIsCreatingUser] = useState(false)
-  const [showPasswordModal, setShowPasswordModal] = useState(false)
-  const [generatedPassword, setGeneratedPassword] = useState('')
-  const [passwordCopied, setPasswordCopied] = useState(false)
-  const [toast, setToast] = useState<{message: string, type: 'success' | 'error'} | null>(null)
-  const [createUserError, setCreateUserError] = useState('')
-
-  // Generate random password
-  const generatePassword = () => {
-    const length = 12
-    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*"
-    let password = ""
-    for (let i = 0; i < length; i++) {
-      password += charset.charAt(Math.floor(Math.random() * charset.length))
-    }
-    return password
-  }
+  const { isAdmin } = useAuth();
+  const [showCreateUser, setShowCreateUser] = useState(false);
+  const [newUserEmail, setNewUserEmail] = useState("");
+  const [newUserRole, setNewUserRole] = useState<"admin" | "lead">("lead");
+  const [isCreatingUser, setIsCreatingUser] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [generatedPassword, setGeneratedPassword] = useState("");
+  const [passwordCopied, setPasswordCopied] = useState(false);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
+  const [createUserError, setCreateUserError] = useState("");
 
   // Show toast notification
-  const showToast = (message: string, type: 'success' | 'error') => {
-    setToast({ message, type })
-    setTimeout(() => setToast(null), 5000)
-  }
+  const showToast = (message: string, type: "success" | "error") => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 5000);
+  };
 
   // Copy password to clipboard
   const copyPassword = async () => {
     try {
-      await navigator.clipboard.writeText(generatedPassword)
-      setPasswordCopied(true)
-      setTimeout(() => setPasswordCopied(false), 2000)
+      await navigator.clipboard.writeText(generatedPassword);
+      setPasswordCopied(true);
+      setTimeout(() => setPasswordCopied(false), 2000);
     } catch (err) {
-      console.error('Failed to copy password:', err)
+      console.error("Failed to copy password:", err);
     }
-  }
+  };
 
   // Create new user
+
   const handleCreateUser = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
+    e.preventDefault();
+
     if (!newUserEmail || !newUserRole) {
-      setCreateUserError('Please fill in all fields')
-      return
+      setCreateUserError("Please fill in all fields");
+      return;
     }
 
-    setIsCreatingUser(true)
-    setCreateUserError('')
-    
+    setIsCreatingUser(true);
+    setCreateUserError("");
+
     try {
-      // Generate password
-      const password = generatePassword()
-      
-      // Create user with Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-        email: newUserEmail,
-        password: password,
-        email_confirm: true
-      })
+      // Call server API
+      const response = await fetch("/api/admin/createUser", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: newUserEmail, role: newUserRole }),
+      });
 
-      if (authError) {
-        throw new Error(authError.message)
+      const result = await response.json();
+
+      if (!response.ok) {
+        // Show error inside modal
+        setCreateUserError(result.error || "Failed to create user");
+        return;
       }
 
-      if (!authData.user) {
-        throw new Error('Failed to create user')
-      }
+      // Success → show password modal
+      setGeneratedPassword(result.password); // temp password from server
+      setShowPasswordModal(true);
+      setShowCreateUser(false);
+      setNewUserEmail("");
+      setNewUserRole("lead");
 
-      // Add user to users table with role
-      const { error: dbError } = await supabase
-        .from('users')
-        .insert([
-          {
-            user_id: authData.user.id,
-            email: newUserEmail,
-            role: newUserRole
-          }
-        ])
-
-      if (dbError) {
-        throw new Error(dbError.message)
-      }
-
-      // Show password modal
-      setGeneratedPassword(password)
-      setShowPasswordModal(true)
-      setShowCreateUser(false)
-      setNewUserEmail('')
-      setNewUserRole('lead')
-      
-      showToast(`User ${newUserEmail} created successfully!`, 'success')
-      
-    } catch (err: unknown) {
-      console.error('Create user error:', err)
-      const errorMessage = err instanceof Error ? err.message : 'Failed to create user'
-      setCreateUserError(errorMessage)
+      showToast(`User ${newUserEmail} created successfully!`, "success");
+    } catch (err) {
+      console.error(err);
+      setCreateUserError("Failed to create user");
     } finally {
-      setIsCreatingUser(false)
+      setIsCreatingUser(false);
     }
-  }
+  };
 
   // Reset create user form
   const resetCreateUserForm = () => {
-    setShowCreateUser(false)
-    setNewUserEmail('')
-    setNewUserRole('lead')
-    setCreateUserError('')
-  }
+    setShowCreateUser(false);
+    setNewUserEmail("");
+    setNewUserRole("lead");
+    setCreateUserError("");
+  };
 
   // Close password modal
   const closePasswordModal = () => {
-    setShowPasswordModal(false)
-    setGeneratedPassword('')
-    setPasswordCopied(false)
-  }
+    setShowPasswordModal(false);
+    setGeneratedPassword("");
+    setPasswordCopied(false);
+  };
   return (
     <div className="p-8">
       <div className="max-w-4xl mx-auto">
@@ -133,8 +116,12 @@ export default function AdminControls() {
               <Settings className="h-8 w-8 text-blue-600" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Controls</h1>
-          <p className="text-lg text-gray-600">Manage users, settings, and system configuration</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Admin Controls
+          </h1>
+          <p className="text-lg text-gray-600">
+            Manage users, settings, and system configuration
+          </p>
         </div>
 
         {/* User Management Section */}
@@ -143,7 +130,9 @@ export default function AdminControls() {
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center">
                 <Users className="h-6 w-6 text-blue-600 mr-3" />
-                <h3 className="text-lg font-semibold text-gray-900">User Management</h3>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  User Management
+                </h3>
               </div>
               <button
                 onClick={() => setShowCreateUser(true)}
@@ -153,9 +142,10 @@ export default function AdminControls() {
                 Create User
               </button>
             </div>
-            
+
             <p className="text-gray-600 mb-4">
-              Manage user accounts, roles, and permissions. Create new users and assign admin or lead roles.
+              Manage user accounts, roles, and permissions. Create new users and
+              assign admin or lead roles.
             </p>
 
             {/* Create User Form Modal */}
@@ -173,11 +163,14 @@ export default function AdminControls() {
                       <X className="h-6 w-6" />
                     </button>
                   </div>
-                  
+
                   <div className="p-6">
                     <form onSubmit={handleCreateUser} className="space-y-4">
                       <div>
-                        <label htmlFor="user-email" className="block text-sm font-medium text-gray-700">
+                        <label
+                          htmlFor="user-email"
+                          className="block text-sm font-medium text-gray-700"
+                        >
                           Email address
                         </label>
                         <input
@@ -193,14 +186,19 @@ export default function AdminControls() {
                       </div>
 
                       <div>
-                        <label htmlFor="user-role" className="block text-sm font-medium text-gray-700">
+                        <label
+                          htmlFor="user-role"
+                          className="block text-sm font-medium text-gray-700"
+                        >
                           Role
                         </label>
                         <select
                           id="user-role"
                           name="user-role"
                           value={newUserRole}
-                          onChange={(e) => setNewUserRole(e.target.value as 'admin' | 'lead')}
+                          onChange={(e) =>
+                            setNewUserRole(e.target.value as "admin" | "lead")
+                          }
                           className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                         >
                           <option value="lead">Lead</option>
@@ -215,7 +213,9 @@ export default function AdminControls() {
                               <AlertCircle className="h-5 w-5 text-red-400" />
                             </div>
                             <div className="ml-3">
-                              <p className="text-sm text-red-700">{createUserError}</p>
+                              <p className="text-sm text-red-700">
+                                {createUserError}
+                              </p>
                             </div>
                           </div>
                         </div>
@@ -240,7 +240,7 @@ export default function AdminControls() {
                               Creating...
                             </div>
                           ) : (
-                            'Create User'
+                            "Create User"
                           )}
                         </button>
                       </div>
@@ -258,91 +258,98 @@ export default function AdminControls() {
           <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
             <div className="flex items-center mb-4">
               <Users className="h-6 w-6 text-blue-600 mr-3" />
-              <h3 className="text-lg font-semibold text-gray-900">User Management</h3>
+              <h3 className="text-lg font-semibold text-gray-900">
+                User Management
+              </h3>
             </div>
             <p className="text-gray-600 mb-4">
-              Manage user accounts, roles, and permissions. Add new users and assign admin or lead roles.
+              Manage user accounts, roles, and permissions. Add new users and
+              assign admin or lead roles.
             </p>
-            <div className="text-sm text-gray-500">
-              Coming soon...
-            </div>
+            <div className="text-sm text-gray-500">Coming soon...</div>
           </div>
 
           {/* Database Management */}
           <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
             <div className="flex items-center mb-4">
               <Database className="h-6 w-6 text-green-600 mr-3" />
-              <h3 className="text-lg font-semibold text-gray-900">Database Management</h3>
+              <h3 className="text-lg font-semibold text-gray-900">
+                Database Management
+              </h3>
             </div>
             <p className="text-gray-600 mb-4">
-              Monitor database performance, manage data imports, and configure database settings.
+              Monitor database performance, manage data imports, and configure
+              database settings.
             </p>
-            <div className="text-sm text-gray-500">
-              Coming soon...
-            </div>
+            <div className="text-sm text-gray-500">Coming soon...</div>
           </div>
 
           {/* Analytics Configuration */}
           <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
             <div className="flex items-center mb-4">
               <BarChart3 className="h-6 w-6 text-purple-600 mr-3" />
-              <h3 className="text-lg font-semibold text-gray-900">Analytics Configuration</h3>
+              <h3 className="text-lg font-semibold text-gray-900">
+                Analytics Configuration
+              </h3>
             </div>
             <p className="text-gray-600 mb-4">
-              Configure analytics dashboards, set up automated reports, and customize data views.
+              Configure analytics dashboards, set up automated reports, and
+              customize data views.
             </p>
-            <div className="text-sm text-gray-500">
-              Coming soon...
-            </div>
+            <div className="text-sm text-gray-500">Coming soon...</div>
           </div>
 
           {/* System Settings */}
           <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
             <div className="flex items-center mb-4">
               <Settings className="h-6 w-6 text-gray-600 mr-3" />
-              <h3 className="text-lg font-semibold text-gray-900">System Settings</h3>
+              <h3 className="text-lg font-semibold text-gray-900">
+                System Settings
+              </h3>
             </div>
             <p className="text-gray-600 mb-4">
-              Configure application settings, manage integrations, and customize the user experience.
+              Configure application settings, manage integrations, and customize
+              the user experience.
             </p>
-            <div className="text-sm text-gray-500">
-              Coming soon...
-            </div>
+            <div className="text-sm text-gray-500">Coming soon...</div>
           </div>
 
           {/* Security & Compliance */}
           <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
             <div className="flex items-center mb-4">
               <Shield className="h-6 w-6 text-red-600 mr-3" />
-              <h3 className="text-lg font-semibold text-gray-900">Security & Compliance</h3>
+              <h3 className="text-lg font-semibold text-gray-900">
+                Security & Compliance
+              </h3>
             </div>
             <p className="text-gray-600 mb-4">
-              Manage security policies, audit logs, and compliance settings for data protection.
+              Manage security policies, audit logs, and compliance settings for
+              data protection.
             </p>
-            <div className="text-sm text-gray-500">
-              Coming soon...
-            </div>
+            <div className="text-sm text-gray-500">Coming soon...</div>
           </div>
 
           {/* API Management */}
           <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
             <div className="flex items-center mb-4">
               <Database className="h-6 w-6 text-indigo-600 mr-3" />
-              <h3 className="text-lg font-semibold text-gray-900">API Management</h3>
+              <h3 className="text-lg font-semibold text-gray-900">
+                API Management
+              </h3>
             </div>
             <p className="text-gray-600 mb-4">
-              Configure API endpoints, manage rate limits, and monitor API usage and performance.
+              Configure API endpoints, manage rate limits, and monitor API usage
+              and performance.
             </p>
-            <div className="text-sm text-gray-500">
-              Coming soon...
-            </div>
+            <div className="text-sm text-gray-500">Coming soon...</div>
           </div>
         </div>
 
         {/* Contact Information */}
         <div className="mt-8 text-center">
           <p className="text-gray-600">
-            Need admin assistance? Contact your system administrator for help with user management and system configuration.
+            Need admin assistance? Contact your system administrator for help
+            with user management and system configuration.
           </p>
         </div>
 
@@ -361,12 +368,13 @@ export default function AdminControls() {
                   <X className="h-6 w-6" />
                 </button>
               </div>
-              
+
               <div className="p-6">
                 <p className="text-sm text-gray-600 mb-4">
-                  The user has been created successfully. Here is their temporary password:
+                  The user has been created successfully. Here is their
+                  temporary password:
                 </p>
-                
+
                 <div className="bg-gray-50 border border-gray-200 rounded-md p-4 mb-4">
                   <div className="flex items-center justify-between">
                     <code className="text-sm font-mono text-gray-900 break-all">
@@ -392,7 +400,8 @@ export default function AdminControls() {
                 </div>
 
                 <p className="text-xs text-gray-500 mb-4">
-                  Please save this password securely and share it with the user. They should change it after their first login.
+                  Please save this password securely and share it with the user.
+                  They should change it after their first login.
                 </p>
 
                 <div className="flex justify-end">
@@ -411,23 +420,29 @@ export default function AdminControls() {
         {/* Toast Notification */}
         {toast && (
           <div className="fixed top-4 right-4 z-50">
-            <div className={`rounded-md p-4 shadow-lg ${
-              toast.type === 'success' 
-                ? 'bg-green-50 border border-green-200' 
-                : 'bg-red-50 border border-red-200'
-            }`}>
+            <div
+              className={`rounded-md p-4 shadow-lg ${
+                toast.type === "success"
+                  ? "bg-green-50 border border-green-200"
+                  : "bg-red-50 border border-red-200"
+              }`}
+            >
               <div className="flex">
                 <div className="flex-shrink-0">
-                  {toast.type === 'success' ? (
+                  {toast.type === "success" ? (
                     <Check className="h-5 w-5 text-green-400" />
                   ) : (
                     <AlertCircle className="h-5 w-5 text-red-400" />
                   )}
                 </div>
                 <div className="ml-3">
-                  <p className={`text-sm ${
-                    toast.type === 'success' ? 'text-green-700' : 'text-red-700'
-                  }`}>
+                  <p
+                    className={`text-sm ${
+                      toast.type === "success"
+                        ? "text-green-700"
+                        : "text-red-700"
+                    }`}
+                  >
                     {toast.message}
                   </p>
                 </div>
@@ -437,5 +452,5 @@ export default function AdminControls() {
         )}
       </div>
     </div>
-  )
+  );
 }
