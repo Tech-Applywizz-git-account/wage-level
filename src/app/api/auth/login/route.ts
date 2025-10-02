@@ -45,6 +45,7 @@ export async function POST(req: Request) {
       maxAge: 60 * 60 * 24 * 7, // 7 days
       path: "/",
       sameSite: "lax",
+      secure: true,
     });
 
     const res = NextResponse.json({ success: true });

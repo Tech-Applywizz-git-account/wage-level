@@ -1,79 +1,63 @@
 "use client";
+import { createContext, useContext, useEffect, useState } from "react";
 
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  ReactNode,
-} from "react";
-import { useRouter, usePathname } from "next/navigation";
-import { decrypt } from "@/lib/session";
-
-interface User {
+type User = {
   userId: string;
   email: string;
   role: string;
-}
+};
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   isAdmin: boolean;
-  signOut: () => void;
+  signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
   isAdmin: false,
-  signOut: () => {},
+  signOut: async () => {},
 });
 
-export const useAuth = () => useContext(AuthContext);
-
-export function AuthProvider({ children }: { children: ReactNode }) {
+export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
-  const pathname = usePathname();
 
   useEffect(() => {
-    try {
-      const cookies = document.cookie.split(";").map((c) => c.trim());
-      const sessionCookie = cookies.find((c) => c.startsWith("session="));
-
-      if (sessionCookie) {
-        const encrypted = sessionCookie.split("=")[1];
-        const session = decrypt(encrypted) as User;
-        setUser(session);
-      } else {
+    const checkSession = async () => {
+      try {
+        const res = await fetch("/api/auth/me", { credentials: "include" });
+        if (res.ok) {
+          const data = await res.json();
+          setUser(data.user);
+        } else {
+          setUser(null);
+        }
+      } catch (err) {
+        console.error("Failed to load session", err);
         setUser(null);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Error reading session:", error);
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
+    };
+
+    checkSession();
   }, []);
 
-  const signOut = () => {
-    document.cookie = "session=; Max-Age=0; path=/";
+  const signOut = async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
     setUser(null);
-    router.push("/");
   };
 
   return (
     <AuthContext.Provider
-      value={{
-        user,
-        loading,
-        isAdmin: user?.role === "admin",
-        signOut,
-      }}
+      value={{ user, loading, isAdmin: user?.role === "admin", signOut }}
     >
       {children}
     </AuthContext.Provider>
   );
 }
+
+export const useAuth = () => useContext(AuthContext);

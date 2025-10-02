@@ -18,7 +18,9 @@ export default function RootPage() {
     );
   }
 
+  console.log(user + "from /");
   if (user) {
+    console.log("must be some issue");
     return <Overview />;
   }
 

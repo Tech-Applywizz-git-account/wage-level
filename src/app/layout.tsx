@@ -35,13 +35,13 @@ function AppLayout({ children }: { children: React.ReactNode }) {
   }
 
   // 2. Root route → login page (just render children, no nav/header)
-  if (pathname === "/") {
+  if (pathname === "/" && !user) {
     return <main>{children}</main>;
   }
 
   // 3. All other routes → full layout
   const navItems = [
-    { href: "/overview", label: "Overview", icon: Home },
+    { href: "/", label: "Overview", icon: Home },
     { href: "/role-analysis", label: "Role Analysis", icon: Briefcase },
     { href: "/company-analysis", label: "Company Analysis", icon: Building2 },
     { href: "/top-performers", label: "Top Performers", icon: TrendingUp },
