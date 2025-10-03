@@ -4,11 +4,9 @@ import { useState } from "react";
 import {
   Settings,
   Users,
-  Shield,
   Database,
   BarChart3,
   Plus,
-  Copy,
   Check,
   AlertCircle,
   X,
@@ -21,9 +19,6 @@ export default function AdminControls() {
   const [newUserEmail, setNewUserEmail] = useState("");
   const [newUserRole, setNewUserRole] = useState<"admin" | "lead">("lead");
   const [isCreatingUser, setIsCreatingUser] = useState(false);
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const [generatedPassword, setGeneratedPassword] = useState("");
-  const [passwordCopied, setPasswordCopied] = useState(false);
   const [toast, setToast] = useState<{
     message: string;
     type: "success" | "error";
@@ -36,19 +31,7 @@ export default function AdminControls() {
     setTimeout(() => setToast(null), 5000);
   };
 
-  // Copy password to clipboard
-  const copyPassword = async () => {
-    try {
-      await navigator.clipboard.writeText(generatedPassword);
-      setPasswordCopied(true);
-      setTimeout(() => setPasswordCopied(false), 2000);
-    } catch (err) {
-      console.error("Failed to copy password:", err);
-    }
-  };
-
   // Create new user
-
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -61,7 +44,6 @@ export default function AdminControls() {
     setCreateUserError("");
 
     try {
-      // Call server API
       const response = await fetch("/api/admin/createUser", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -71,19 +53,15 @@ export default function AdminControls() {
       const result = await response.json();
 
       if (!response.ok) {
-        // Show error inside modal
         setCreateUserError(result.error || "Failed to create user");
         return;
       }
 
-      // Success → show password modal
-      setGeneratedPassword(result.password); // temp password from server
-      setShowPasswordModal(true);
+      // Success → close modal + toast
       setShowCreateUser(false);
       setNewUserEmail("");
       setNewUserRole("lead");
-
-      showToast(`User ${newUserEmail} created successfully!`, "success");
+      showToast(result.message || `Invite sent to ${newUserEmail}`, "success");
     } catch (err) {
       console.error(err);
       setCreateUserError("Failed to create user");
@@ -100,12 +78,6 @@ export default function AdminControls() {
     setCreateUserError("");
   };
 
-  // Close password modal
-  const closePasswordModal = () => {
-    setShowPasswordModal(false);
-    setGeneratedPassword("");
-    setPasswordCopied(false);
-  };
   return (
     <div className="p-8">
       <div className="max-w-4xl mx-auto">
@@ -175,7 +147,6 @@ export default function AdminControls() {
                         </label>
                         <input
                           id="user-email"
-                          name="user-email"
                           type="email"
                           required
                           value={newUserEmail}
@@ -194,7 +165,6 @@ export default function AdminControls() {
                         </label>
                         <select
                           id="user-role"
-                          name="user-role"
                           value={newUserRole}
                           onChange={(e) =>
                             setNewUserRole(e.target.value as "admin" | "lead")
@@ -209,9 +179,7 @@ export default function AdminControls() {
                       {createUserError && (
                         <div className="rounded-md bg-red-50 p-4">
                           <div className="flex">
-                            <div className="flex-shrink-0">
-                              <AlertCircle className="h-5 w-5 text-red-400" />
-                            </div>
+                            <AlertCircle className="h-5 w-5 text-red-400" />
                             <div className="ml-3">
                               <p className="text-sm text-red-700">
                                 {createUserError}
@@ -252,9 +220,8 @@ export default function AdminControls() {
           </div>
         )}
 
-        {/* Planned Features Grid */}
+        {/* Placeholder sections */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* User Management */}
           <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
             <div className="flex items-center mb-4">
               <Users className="h-6 w-6 text-blue-600 mr-3" />
@@ -268,8 +235,6 @@ export default function AdminControls() {
             </p>
             <div className="text-sm text-gray-500">Coming soon...</div>
           </div>
-
-          {/* Database Management */}
           <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
             <div className="flex items-center mb-4">
               <Database className="h-6 w-6 text-green-600 mr-3" />
@@ -283,8 +248,6 @@ export default function AdminControls() {
             </p>
             <div className="text-sm text-gray-500">Coming soon...</div>
           </div>
-
-          {/* Analytics Configuration */}
           <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
             <div className="flex items-center mb-4">
               <BarChart3 className="h-6 w-6 text-purple-600 mr-3" />
@@ -298,51 +261,6 @@ export default function AdminControls() {
             </p>
             <div className="text-sm text-gray-500">Coming soon...</div>
           </div>
-
-          {/* System Settings */}
-          <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-            <div className="flex items-center mb-4">
-              <Settings className="h-6 w-6 text-gray-600 mr-3" />
-              <h3 className="text-lg font-semibold text-gray-900">
-                System Settings
-              </h3>
-            </div>
-            <p className="text-gray-600 mb-4">
-              Configure application settings, manage integrations, and customize
-              the user experience.
-            </p>
-            <div className="text-sm text-gray-500">Coming soon...</div>
-          </div>
-
-          {/* Security & Compliance */}
-          <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-            <div className="flex items-center mb-4">
-              <Shield className="h-6 w-6 text-red-600 mr-3" />
-              <h3 className="text-lg font-semibold text-gray-900">
-                Security & Compliance
-              </h3>
-            </div>
-            <p className="text-gray-600 mb-4">
-              Manage security policies, audit logs, and compliance settings for
-              data protection.
-            </p>
-            <div className="text-sm text-gray-500">Coming soon...</div>
-          </div>
-
-          {/* API Management */}
-          <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-            <div className="flex items-center mb-4">
-              <Database className="h-6 w-6 text-indigo-600 mr-3" />
-              <h3 className="text-lg font-semibold text-gray-900">
-                API Management
-              </h3>
-            </div>
-            <p className="text-gray-600 mb-4">
-              Configure API endpoints, manage rate limits, and monitor API usage
-              and performance.
-            </p>
-            <div className="text-sm text-gray-500">Coming soon...</div>
-          </div>
         </div>
 
         {/* Contact Information */}
@@ -352,70 +270,6 @@ export default function AdminControls() {
             with user management and system configuration.
           </p>
         </div>
-
-        {/* Password Display Modal */}
-        {showPasswordModal && (
-          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-              <div className="flex items-center justify-between p-6 border-b border-gray-200">
-                <h3 className="text-lg font-medium text-gray-900">
-                  User Created Successfully
-                </h3>
-                <button
-                  onClick={closePasswordModal}
-                  className="text-gray-400 hover:text-gray-600 focus:outline-none"
-                >
-                  <X className="h-6 w-6" />
-                </button>
-              </div>
-
-              <div className="p-6">
-                <p className="text-sm text-gray-600 mb-4">
-                  The user has been created successfully. Here is their
-                  temporary password:
-                </p>
-
-                <div className="bg-gray-50 border border-gray-200 rounded-md p-4 mb-4">
-                  <div className="flex items-center justify-between">
-                    <code className="text-sm font-mono text-gray-900 break-all">
-                      {generatedPassword}
-                    </code>
-                    <button
-                      onClick={copyPassword}
-                      className="ml-2 flex items-center px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                    >
-                      {passwordCopied ? (
-                        <>
-                          <Check className="h-3 w-3 mr-1" />
-                          Copied!
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="h-3 w-3 mr-1" />
-                          Copy
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </div>
-
-                <p className="text-xs text-gray-500 mb-4">
-                  Please save this password securely and share it with the user.
-                  They should change it after their first login.
-                </p>
-
-                <div className="flex justify-end">
-                  <button
-                    onClick={closePasswordModal}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                  >
-                    Close
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Toast Notification */}
         {toast && (

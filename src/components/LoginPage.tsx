@@ -4,11 +4,9 @@ import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Database, Mail, Lock, AlertCircle, X, Check } from "lucide-react";
 import { supabase } from "@/lib/supabase";
-import { useRouter } from "next/navigation"; // ✅ app router import
 
 export default function LoginPage() {
   const { loading } = useAuth();
-  const router = useRouter();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
