@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertCircle, CheckCircle } from "lucide-react";
+import { AlertCircle, CheckCircle, Lock } from "lucide-react";
 import { useState, useEffect } from "react";
 
 export default function SetPasswordPage() {
@@ -86,45 +86,98 @@ export default function SetPasswordPage() {
   };
 
   return (
-    <div className="max-w-md mx-auto">
-      <h1 className="text-2xl font-bold text-center mb-4">Set Your Password</h1>
-      {error && <div className="text-red-500 mb-2">{error}</div>}
+    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="flex justify-center">
+          <CheckCircle className="h-12 w-12 text-blue-600" />
+        </div>
+        <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
+          Set Your Password
+        </h2>
+        <p className="mt-2 text-center text-sm text-gray-600">
+          Create a new password to access your account
+        </p>
+      </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="password" className="block text-sm">
-            New Password
-          </label>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-md"
-            required
-          />
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            {/* New Password */}
+            <div>
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700"
+              >
+                New Password
+              </label>
+              <div className="mt-1 relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Lock className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  id="password"
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  placeholder="Enter your new password"
+                />
+              </div>
+            </div>
+
+            {/* Confirm Password */}
+            <div>
+              <label
+                htmlFor="confirmPassword"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Confirm Password
+              </label>
+              <div className="mt-1 relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Lock className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  id="confirmPassword"
+                  type="password"
+                  required
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  placeholder="Confirm your new password"
+                />
+              </div>
+            </div>
+
+            {/* Error */}
+            {error && (
+              <div className="rounded-md bg-red-50 p-4 text-sm text-red-700 flex items-center space-x-2">
+                <AlertCircle className="h-5 w-5 text-red-400" />
+                <span>{error}</span>
+              </div>
+            )}
+
+            {/* Submit Button */}
+            <div>
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full flex justify-center py-2 px-4 rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
+              >
+                {isLoading ? (
+                  <div className="flex items-center">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Setting...
+                  </div>
+                ) : (
+                  "Set Password"
+                )}
+              </button>
+            </div>
+          </form>
         </div>
-        <div>
-          <label htmlFor="confirmPassword" className="block text-sm">
-            Confirm Password
-          </label>
-          <input
-            id="confirmPassword"
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-md"
-            required
-          />
-        </div>
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="w-full p-2 bg-blue-600 text-white rounded-md"
-        >
-          {isLoading ? "Setting..." : "Set Password"}
-        </button>
-      </form>
+      </div>
 
       {/* Toast notification */}
       {toast && (

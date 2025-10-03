@@ -21,6 +21,7 @@ import { DataProvider } from "@/contexts/DataContext";
 function AppLayout({ children }: { children: React.ReactNode }) {
   const { user, signOut, isAdmin, loading } = useAuth();
   const pathname = usePathname();
+  const isAuthPage = pathname === "/auth/set-password" || pathname === "/";
 
   // 1. Show spinner while loading session
   if (loading) {
@@ -35,7 +36,7 @@ function AppLayout({ children }: { children: React.ReactNode }) {
   }
 
   // 2. Root route → login page (just render children, no nav/header)
-  if (pathname === "/" && !user) {
+  if (isAuthPage && !user) {
     return <main>{children}</main>;
   }
 

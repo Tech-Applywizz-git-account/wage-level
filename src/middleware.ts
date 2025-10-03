@@ -7,7 +7,6 @@ export async function middleware(req: NextRequest) {
 
   // 🔒 Protect normal user routes
   if (
-    pathname.startsWith("/overview") ||
     pathname.startsWith("/role-analysis") ||
     pathname.startsWith("/company-analysis") ||
     pathname.startsWith("/top-performers") ||
