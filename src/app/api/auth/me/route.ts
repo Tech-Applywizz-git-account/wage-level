@@ -1,11 +1,10 @@
-// src/app/api/auth/me/route.ts
 import { cookies } from "next/headers";
 import { decrypt } from "@/lib/session";
 
 export async function GET() {
   try {
-    const cookieStore = cookies();
-    const sessionCookie = await cookieStore.get("session")?.value;
+    const cookieStore = await cookies(); // ⬅️ await here
+    const sessionCookie = cookieStore.get("session")?.value;
 
     if (!sessionCookie) {
       return Response.json({ user: null }, { status: 401 });

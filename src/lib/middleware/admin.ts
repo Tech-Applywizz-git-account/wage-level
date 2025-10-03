@@ -8,9 +8,9 @@ export async function withAdmin(req: NextRequest) {
 
   // Fetch role from DB
   const { data: profile } = await supabase
-    .from("profiles")
+    .from("users")
     .select("role")
-    .eq("id", session.userId)
+    .eq("user_id", session.userId)
     .single();
 
   if (!profile || profile.role !== "admin") {

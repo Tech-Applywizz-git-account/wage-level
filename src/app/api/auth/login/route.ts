@@ -20,14 +20,20 @@ export async function POST(req: Request) {
       );
     }
 
+    console.log(data);
+
+    console.log(data.user.id);
+
     // Get user role
     const { data: profile } = await supabase
       .from("users")
       .select("role")
-      .eq("id", data.user.id)
+      .eq("user_id", data.user.id)
       .single();
 
-    const role = profile?.role ?? "user";
+    console.log(profile);
+
+    const role = profile?.role ?? "admin";
 
     const sessionData = {
       userId: data.user.id,
@@ -45,7 +51,6 @@ export async function POST(req: Request) {
       maxAge: 60 * 60 * 24 * 7, // 7 days
       path: "/",
       sameSite: "lax",
-      secure: true,
     });
 
     const res = NextResponse.json({ success: true });
