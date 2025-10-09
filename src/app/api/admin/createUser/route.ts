@@ -26,7 +26,8 @@ export async function POST(req: Request) {
     // 2. Send invite email
     const { error: inviteError } =
       await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
-        redirectTo: "http://localhost:3000/auth/set-password",
+        redirectTo:
+          "https://www.sponsored-jobs-one.vercel.app/auth/set-password",
       });
 
     if (inviteError) {
