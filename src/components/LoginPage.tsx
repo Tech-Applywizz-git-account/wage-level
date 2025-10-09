@@ -54,7 +54,7 @@ export default function LoginPage() {
         credentials: "include",
       });
       if (res.ok) {
-        router.refresh();
+        window.location.href = "/";
       } else {
         setError("Invalid email or password.");
       }
