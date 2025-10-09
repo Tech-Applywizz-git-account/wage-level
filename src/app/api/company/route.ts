@@ -1,0 +1,30 @@
+import { NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
+
+export const dynamic = "force-dynamic";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+);
+
+export async function GET() {
+  try {
+    const { data, error } = await supabase
+      .from("companies_by_sponsored_jobs")
+      .select("*");
+
+    if (error) throw error;
+
+    // Map to clean structure
+    const companies = (data || []).map((row) => ({
+      company: row.company,
+      sponsored_jobs: row.sponsored_count,
+    }));
+
+    return NextResponse.json(companies);
+  } catch (error: any) {
+    console.error("Error in /api/company:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}

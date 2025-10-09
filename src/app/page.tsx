@@ -9,18 +9,16 @@ export default function RootPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Checking session...</p>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center">
+          <div className="h-12 w-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4" />
+          <p className="text-sm text-muted-foreground">Checking session…</p>
         </div>
       </div>
     );
   }
 
-  console.log(user + "from /");
   if (user) {
-    console.log("must be some issue");
     return <Overview />;
   }
 

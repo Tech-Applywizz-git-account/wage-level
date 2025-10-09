@@ -36,6 +36,7 @@ export const config = {
     "/top-performers/:path*",
     "/data-explorer/:path*",
     "/api/jobs/:path*",
+    "/api/domain/:path",
     "/admin/:path*",
     "/api/admin/:path*",
     // ❌ remove "/" here since we handle login/overview in page.tsx
