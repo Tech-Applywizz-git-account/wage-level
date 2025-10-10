@@ -161,7 +161,7 @@ The application works with the `job_jobrole_sponsored` table containing:
 - The connection status and data loading progress are displayed in the UI
 - Error handling is implemented for network issues
 
-## 🤝 Contributing
+## 🤝 Contributing - Not accepting
 
 1. Fork the repository
 2. Create a feature branch
