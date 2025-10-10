@@ -134,7 +134,7 @@ const Domains = () => {
         </div>
       ) : (
         <div className="text-center py-12 text-muted-foreground">
-          No domains found matching "{searchTerm}"
+          No domains found matching &quot;{searchTerm}&quot;{" "}
         </div>
       )}
     </div>

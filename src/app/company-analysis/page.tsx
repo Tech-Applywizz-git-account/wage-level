@@ -107,7 +107,7 @@ const CompaniesPage = () => {
         </div>
       ) : (
         <div className="text-center py-12 text-muted-foreground">
-          No companies found matching "{searchTerm}"
+          No companies found matching &quot;{searchTerm}&quot{" "}
         </div>
       )}
     </div>

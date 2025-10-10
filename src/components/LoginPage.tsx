@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { Mail, Lock, AlertCircle } from "lucide-react";
@@ -29,7 +28,6 @@ import {
 } from "@/components/ui/dialog";
 
 export default function LoginPage() {
-  const router = useRouter();
   const { loading } = useAuth();
 
   const [email, setEmail] = useState("");
