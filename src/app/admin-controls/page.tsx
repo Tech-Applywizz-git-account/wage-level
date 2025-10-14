@@ -157,7 +157,6 @@ export default function AdminControls() {
     setNewUserRole("lead");
     setCreateUserError("");
   };
-
   // Pagination logic
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
