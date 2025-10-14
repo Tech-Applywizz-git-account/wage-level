@@ -3,7 +3,7 @@ import { withAdmin } from "@/lib/middleware/admin";
 import { NextRequest } from "next/server";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceKey = process.env.NEXT_SUPABASE_SERVICE_ROLE_KEY!;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
