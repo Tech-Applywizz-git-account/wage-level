@@ -70,18 +70,19 @@ export default function LoginPage() {
     setForgotType("");
 
     try {
-      const { data: userData, error } = await supabase
-        .from("users")
-        .select("email")
-        .eq("email", forgotEmail)
-        .single();
+      // Use Supabase's resetPasswordForEmail method
+      const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
+        redirectTo: `${window.location.origin}/auth/set-password`,
+      });
 
-      if (error || !userData) {
-        setForgotMessage("This email is not registered.");
+      if (error) {
+        setForgotMessage(error.message);
         setForgotType("error");
       } else {
-        setForgotMessage("Email found! Contact your admin to reset password.");
+        setForgotMessage("Password reset email sent! Check your inbox.");
         setForgotType("success");
+        // Clear the email input
+        setForgotEmail("");
       }
     } catch {
       setForgotMessage("Something went wrong. Please try again.");
@@ -167,7 +168,7 @@ export default function LoginPage() {
               <DialogHeader>
                 <DialogTitle>Forgot Password</DialogTitle>
                 <DialogDescription>
-                  Enter your email address to check if it’s registered.
+                  Enter your email address and we'll send you a link to reset your password.
                 </DialogDescription>
               </DialogHeader>
               <form onSubmit={handleForgotPassword} className="space-y-4">
