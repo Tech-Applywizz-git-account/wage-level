@@ -31,14 +31,12 @@ export async function POST(req: Request) {
       .eq("user_id", data.user.id)
       .single();
 
-    console.log(profile);
-
-    const role = profile?.role ?? "admin";
+    const role = profile?.role ?? "lead";
 
     const sessionData = {
       userId: data.user.id,
       email: data.user.email,
-      role,
+      role
     };
 
     // Encrypt session

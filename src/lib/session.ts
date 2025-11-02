@@ -1,4 +1,7 @@
 import crypto from "crypto";
+import { NextRequest } from "next/server";
+
+import { createClient } from "@supabase/supabase-js";
 
 const ALGORITHM = "aes-256-gcm";
 const SECRET = process.env.SESSION_SECRET || "dev-secret-key-32byteslong!";
@@ -16,6 +19,29 @@ export function encrypt(data: any): string {
   const authTag = cipher.getAuthTag().toString("hex");
 
   return `${iv.toString("hex")}:${authTag}:${encrypted}`;
+}
+
+export async function getUserCountry(req: NextRequest) {
+  const encryptedSession = req.cookies.get("session")?.value;
+  if (!encryptedSession) throw new Error("No session found");
+
+  const val = decrypt(encryptedSession);
+  if (!val?.userId) throw new Error("Invalid session payload");
+
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY! // server-side use only
+  );
+
+  const { data, error } = await supabase
+    .from("users")
+    .select("country")
+    .eq("user_id", val.userId)
+    .maybeSingle();
+
+  if (error) console.error("Error fetching user country:", error);
+
+  return data?.country ?? "United States of America";
 }
 
 export function decrypt(encryptedData: string): any | null {

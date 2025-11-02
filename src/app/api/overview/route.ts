@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { getUserCountry } from "@/lib/session";
 
 export const dynamic = "force-dynamic"; // ensure fresh data on each request
 
@@ -9,13 +10,16 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!, // service role key required for head+count queries
 );
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+
+    const country = await getUserCountry(req);
+
     // 1️⃣ Total Companies (total rows)
     const { count: total_companies, error: totalCompaniesError } =
       await supabase
         .from("job_jobrole_sponsored")
-        .select("*", { count: "exact", head: true });
+        .select("*", { count: "exact", head: true }).eq("country", country);
 
     if (totalCompaniesError) throw totalCompaniesError;
 
@@ -26,19 +30,24 @@ export async function GET() {
 
     if (totalDomainsError) throw totalDomainsError;
 
+    const now = new Date();
+    const lastWeekStart = new Date(now);
+    lastWeekStart.setDate(now.getDate() - 7);
+    const formattedLastWeekStart = lastWeekStart.toISOString().split("T")[0];
+
     // 3️⃣ Sponsorship Companies Count (where sponsored_job = 'Yes')
     const { count: sponsorship_companies, error: sponsorshipError } =
       await supabase
         .from("job_jobrole_sponsored")
         .select("*", { count: "exact", head: true })
-        .eq("sponsored_job", "Yes");
-
+        .eq("sponsored_job", "Yes")
+        .gte("date_posted", formattedLastWeekStart);
     if (sponsorshipError) throw sponsorshipError;
 
     // 4️⃣ Latest Jobs (top 10 by date_posted desc)
     const { data: latestJobsData, error: latestJobsError } = await supabase
       .from("job_jobrole_sponsored")
-      .select("company, job_role_name, title, location, date_posted, url")
+      .select("company, job_role_name, title, location, date_posted, url").eq("country", country)
       .order("date_posted", { ascending: false, nullsFirst: false })
       .limit(10);
 
@@ -56,7 +65,7 @@ export async function GET() {
 
     const { data: top_companies, error: topCompaniesError } = await supabase
       .from("companies_by_sponsored_jobs")
-      .select("*")
+      .select("*").eq("country", country)
       .order("sponsored_count", { ascending: false })
       .limit(10);
 

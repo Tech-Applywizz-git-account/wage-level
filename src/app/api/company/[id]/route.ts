@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { getUserCountry } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
@@ -9,7 +10,7 @@ const supabase = createClient(
 );
 
 export async function GET(
-  request: Request,
+  req: NextRequest,
   context: { params: Promise<{ id: string }> },
 ) {
   try {
@@ -17,11 +18,14 @@ export async function GET(
     const { id } = await context.params;
     const companyName = decodeURIComponent(id);
 
+    const country = await getUserCountry(req);
+
     // 2️⃣ Query all jobs for this company
     const { data, error } = await supabase
       .from("job_jobrole_sponsored")
       .select("company, job_role_name, title, location, date_posted, url")
       .eq("company", companyName)
+      .eq("country", country)
       .order("date_posted", { ascending: false, nullsFirst: false });
 
     if (error) throw error;

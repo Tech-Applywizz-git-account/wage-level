@@ -99,24 +99,15 @@ const Overview = () => {
       {/* 📊 KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         <KPICard
-          title="Total Companies"
+          title="Companies with Sponsorship"
           value={totalCompanies}
           icon={Building2}
-          trend="+10 this week"
         />
+        <KPICard title="Total Domains" value={totalDomains} icon={FolderTree} />
         <KPICard
-          title="Total Domains"
-          value={totalDomains}
-          icon={FolderTree}
-          trend="48 tracked"
-        />
-        <KPICard
-          title="Companies with Sponsorship"
+          title="Jobs added last week"
           value={companiesWithSponsorship}
           icon={Award}
-          trend={`${Math.round(
-            (companiesWithSponsorship / totalCompanies) * 100,
-          )}% of total`}
         />
       </div>
 
