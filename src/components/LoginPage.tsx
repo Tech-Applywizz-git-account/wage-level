@@ -70,7 +70,22 @@ export default function LoginPage() {
     setForgotType("");
 
     try {
-      // Use Supabase's resetPasswordForEmail method
+      // First, check if the email exists in the users table
+      const { data: userData, error: userError } = await supabase
+        .from("users")
+        .select("email")
+        .eq("email", forgotEmail)
+        .single();
+
+      if (userError || !userData) {
+        setForgotMessage(
+          "This email is not registered. Please subscribe to our service first on https://skillpassportai.com/ to use this feature."
+        );
+        setForgotType("error");
+        return;
+      }
+
+      // If user exists, send password reset email using Supabase
       const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
         redirectTo: `${window.location.origin}/auth/set-password`,
       });
