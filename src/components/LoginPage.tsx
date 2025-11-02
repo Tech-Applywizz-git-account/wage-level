@@ -79,7 +79,7 @@ export default function LoginPage() {
 
       if (userError || !userData) {
         setForgotMessage(
-          "This email is not registered. Please subscribe to our service first on https://skillpassportai.com/ to use this feature."
+          "email-not-registered"
         );
         setForgotType("error");
         return;
@@ -204,7 +204,24 @@ export default function LoginPage() {
                       forgotType === "success" ? "default" : "destructive"
                     }
                   >
-                    <AlertDescription>{forgotMessage}</AlertDescription>
+                    <AlertDescription>
+                      {forgotMessage === "email-not-registered" ? (
+                        <>
+                          This email is not registered. Please subscribe to our
+                          service first on{" "}
+                          <a
+                            href="https://skillpassportai.com/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="underline font-semibold hover:opacity-80"
+                          >
+                            skillpassportai.com
+                          </a>
+                        </>
+                      ) : (
+                        forgotMessage
+                      )}
+                    </AlertDescription>
                   </Alert>
                 )}
 
