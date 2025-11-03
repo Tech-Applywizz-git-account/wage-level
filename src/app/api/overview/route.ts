@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
     // 2️⃣ Total Domains (unique job_role_name) — using the view `unique_job_role_names`
     const { count: total_domains, error: totalDomainsError } = await supabase
       .from("unique_job_role_names")
-      .select("*", { count: "exact", head: true });
+      .select("*", { count: "exact", head: true }).eq("country", country);
 
     if (totalDomainsError) throw totalDomainsError;
 
