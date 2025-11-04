@@ -7,7 +7,7 @@ const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { email, role } = body as { email: string; role: "admin" | "lead" };
+    const { email, role, country } = body as { email: string; role: "admin" | "lead"; country: "United States of America" | "United Kingdom" | "Ireland" };
 
     // 1. Create Supabase user
     const { data: authData, error: authError } =
@@ -38,7 +38,7 @@ export async function POST(req: Request) {
     // 3. Insert into custom users table
     const { error: dbError } = await supabaseAdmin
       .from("users")
-      .insert([{ user_id: authData.user.id, email, role }]);
+      .insert([{ user_id: authData.user.id, email, role, country }]);
 
     if (dbError) {
       return Response.json({ error: dbError.message }, { status: 400 });

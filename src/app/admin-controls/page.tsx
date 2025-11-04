@@ -30,6 +30,7 @@ export default function AdminControls() {
   const [showCreateUser, setShowCreateUser] = useState(false);
   const [newUserEmail, setNewUserEmail] = useState("");
   const [newUserRole, setNewUserRole] = useState<"admin" | "lead">("lead");
+  const [newCountry, setCountry] = useState<"United Kingdom" | "United States of America" | "Ireland">("United States of America");
   const [isCreatingUser, setIsCreatingUser] = useState(false);
   const [toast, setToast] = useState<{
     message: string;
@@ -113,7 +114,7 @@ export default function AdminControls() {
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!newUserEmail || !newUserRole) {
+    if (!newUserEmail || !newUserRole || !newCountry) {
       setCreateUserError("Please fill in all fields");
       return;
     }
@@ -125,7 +126,7 @@ export default function AdminControls() {
       const response = await fetch("/api/admin/createUser", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: newUserEmail, role: newUserRole }),
+        body: JSON.stringify({ email: newUserEmail, role: newUserRole, country: newCountry }),
       });
 
       const result = await response.json();
@@ -139,6 +140,7 @@ export default function AdminControls() {
       setShowCreateUser(false);
       setNewUserEmail("");
       setNewUserRole("lead");
+      setCountry("United States of America");
       showToast(result.message || `Invite sent to ${newUserEmail}`, "success");
 
       // Refresh users list
@@ -552,6 +554,27 @@ export default function AdminControls() {
                         >
                           <option value="lead">Lead</option>
                           <option value="admin">Admin</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label
+                          htmlFor="user-role"
+                          className="block text-sm font-medium text-gray-700"
+                        >
+                          Country
+                        </label>
+                        <select
+                          id="user-country"
+                          value={newCountry}
+                          onChange={(e) =>
+                            setCountry(e.target.value as "United States of America" | "United Kingdom" | "Ireland")
+                          }
+                          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                        >
+                          <option value="United States of America">United States of America</option>
+                          <option value="United Kingdom">United Kingdom</option>
+                          <option value="Ireland">Ireland</option>
                         </select>
                       </div>
 
