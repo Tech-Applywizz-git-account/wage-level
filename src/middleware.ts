@@ -9,9 +9,9 @@ export async function middleware(req: NextRequest) {
   if (
     pathname.startsWith("/role-analysis") ||
     pathname.startsWith("/company-analysis") ||
-    pathname.startsWith("/top-performers") ||
-    pathname.startsWith("/data-explorer") ||
-    pathname.startsWith("/api/jobs")
+    pathname.startsWith("/api/company") ||
+    pathname.startsWith("/api/domain") ||
+    pathname.startsWith("/api/overview")
   ) {
     const result = withAuth(req);
     if (result instanceof NextResponse) return result;
@@ -35,7 +35,7 @@ export const config = {
     "/company-analysis/:path*",
     "/top-performers/:path*",
     "/data-explorer/:path*",
-    "/api/jobs/:path*",
+    "/api/company/:path*",
     "/api/domain/:path",
     "/admin/:path*",
     "/api/admin/:path*",

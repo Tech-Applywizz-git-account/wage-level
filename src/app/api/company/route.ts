@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { getUserCountry } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
@@ -8,11 +9,13 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!,
 );
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    const country = await getUserCountry(req);
+
     const { data, error } = await supabase
       .from("companies_by_sponsored_jobs")
-      .select("*");
+      .select("*").eq("country", country);
 
     if (error) throw error;
 

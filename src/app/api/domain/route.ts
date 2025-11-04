@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { getUserCountry } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
@@ -44,12 +45,13 @@ function isTechRole(roleName: string): boolean {
   return techKeywords.some((keyword) => lower.includes(keyword));
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    const country = await getUserCountry(req);
     // 1️⃣ Fetch all unique job roles
     const { data, error } = await supabase
       .from("unique_job_role_names")
-      .select("job_role_name");
+      .select("job_role_name").eq("country", country);
 
     if (error) throw error;
 
