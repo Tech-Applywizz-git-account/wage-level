@@ -13,6 +13,7 @@ import {
   RefreshCw,
   ChevronLeft,
   ChevronRight,
+  Trash2,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -42,6 +43,11 @@ export default function AdminControls() {
   const [users, setUsers] = useState<User[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [usersError, setUsersError] = useState<string | null>(null);
+
+  // Delete user states
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [isDeletingUser, setIsDeletingUser] = useState(false);
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -219,6 +225,40 @@ export default function AdminControls() {
     setNewUserPassword("");
     setNewUserRole("lead");
     setCreateUserError("");
+  };
+
+  // Delete user
+  const handleDeleteUser = async () => {
+    if (!userToDelete) return;
+
+    setIsDeletingUser(true);
+    try {
+      const response = await fetch(`/api/admin/users/${userToDelete.user_id}`, {
+        method: "DELETE",
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to delete user");
+      }
+
+      // Update local state
+      setUsers(users.filter(user => user.user_id !== userToDelete.user_id));
+      showToast("User deleted successfully", "success");
+      setShowDeleteConfirm(false);
+      setUserToDelete(null);
+    } catch (err) {
+      console.error("Error deleting user:", err);
+      showToast(err instanceof Error ? err.message : "Failed to delete user", "error");
+    } finally {
+      setIsDeletingUser(false);
+    }
+  };
+
+  const confirmDeleteUser = (user: User) => {
+    setUserToDelete(user);
+    setShowDeleteConfirm(true);
   };
 
   // Pagination logic
@@ -404,12 +444,15 @@ export default function AdminControls() {
                           <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Created
                           </th>
+                          <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Actions
+                          </th>
                         </tr>
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-200">
                         {currentUsers.length === 0 ? (
                           <tr>
-                            <td colSpan={5} className="px-6 py-4 text-center text-sm text-gray-500">
+                            <td colSpan={6} className="px-6 py-4 text-center text-sm text-gray-500">
                               No users found
                             </td>
                           </tr>
@@ -462,6 +505,15 @@ export default function AdminControls() {
                                 {user.created_at
                                   ? new Date(user.created_at).toLocaleDateString()
                                   : "N/A"}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <button
+                                  onClick={() => confirmDeleteUser(user)}
+                                  className="text-red-600 hover:text-red-900 focus:outline-none"
+                                  title="Delete User"
+                                >
+                                  <Trash2 className="h-5 w-5" />
+                                </button>
                               </td>
                             </tr>
                           ))
@@ -824,6 +876,40 @@ export default function AdminControls() {
                 </div>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteConfirm && userToDelete && (
+          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+              <div className="p-6">
+                <div className="flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mx-auto mb-4">
+                  <AlertCircle className="h-6 w-6 text-red-600" />
+                </div>
+                <h3 className="text-lg font-medium text-center text-gray-900 mb-2">
+                  Delete User
+                </h3>
+                <p className="text-sm text-center text-gray-500 mb-6">
+                  Are you sure you want to delete <strong>{userToDelete.email}</strong>? This action cannot be undone.
+                </p>
+                <div className="flex justify-center space-x-3">
+                  <button
+                    onClick={() => setShowDeleteConfirm(false)}
+                    className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleDeleteUser}
+                    disabled={isDeletingUser}
+                    className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
+                  >
+                    {isDeletingUser ? "Deleting..." : "Delete"}
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
