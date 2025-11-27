@@ -16,6 +16,7 @@ import {
   Trash2,
   Eye,
   EyeOff,
+  Search,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -53,6 +54,9 @@ export default function AdminControls() {
 
   // Password visibility state
   const [showPassword, setShowPassword] = useState(false);
+
+  // Search state
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -267,11 +271,17 @@ export default function AdminControls() {
     setShowDeleteConfirm(true);
   };
 
+  // Filter users based on search query
+  const filteredUsers = users.filter(user =>
+    user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (user.full_name && user.full_name.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
   // Pagination logic
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
-  const currentUsers = users.slice(indexOfFirstUser, indexOfLastUser);
-  const totalPages = Math.ceil(users.length / usersPerPage);
+  const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
+  const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
 
   // Calculate visible page range (only show 10 pages)
   const getPageRange = () => {
@@ -416,21 +426,38 @@ export default function AdminControls() {
                 <>
                   <div className="overflow-x-auto">
 
-                    <div className="flex items-center">
-                      <label htmlFor="rows-per-page" className="mr-2 text-sm text-gray-700">
-                        Rows per page:
-                      </label>
-                      <select
-                        id="rows-per-page"
-                        value={usersPerPage}
-                        onChange={handleRowsPerPageChange}
-                        className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                      >
-                        <option value="5">5</option>
-                        <option value="10">10</option>
-                        <option value="20">20</option>
-                        <option value="50">50</option>
-                      </select>
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center">
+                        <label htmlFor="rows-per-page" className="mr-2 text-sm text-gray-700">
+                          Rows per page:
+                        </label>
+                        <select
+                          id="rows-per-page"
+                          value={usersPerPage}
+                          onChange={handleRowsPerPageChange}
+                          className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                        >
+                          <option value="5">5</option>
+                          <option value="10">10</option>
+                          <option value="20">20</option>
+                          <option value="50">50</option>
+                        </select>
+                      </div>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <Search className="h-4 w-4 text-gray-400" />
+                        </div>
+                        <input
+                          type="text"
+                          placeholder="Search users..."
+                          value={searchQuery}
+                          onChange={(e) => {
+                            setSearchQuery(e.target.value);
+                            setCurrentPage(1); // Reset to first page on search
+                          }}
+                          className="pl-10 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                        />
+                      </div>
                     </div>
                     <table className="min-w-full divide-y divide-gray-200">
                       <thead className="bg-gray-50">
@@ -550,9 +577,9 @@ export default function AdminControls() {
                       <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
                         <div className="flex items-center">
                           <p className="text-sm text-gray-700 mr-4">
-                            Showing <span className="font-medium">{indexOfFirstUser + 1}</span> to{' '}
-                            <span className="font-medium">{Math.min(indexOfLastUser, users.length)}</span> of{' '}
-                            <span className="font-medium">{users.length}</span> results
+                            Showing <span className="font-medium">{filteredUsers.length > 0 ? indexOfFirstUser + 1 : 0}</span> to{' '}
+                            <span className="font-medium">{Math.min(indexOfLastUser, filteredUsers.length)}</span> of{' '}
+                            <span className="font-medium">{filteredUsers.length}</span> results
                           </p>
                         </div>
                         <div>
