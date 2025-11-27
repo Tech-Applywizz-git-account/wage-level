@@ -14,6 +14,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Trash2,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -48,6 +50,9 @@ export default function AdminControls() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [isDeletingUser, setIsDeletingUser] = useState(false);
+
+  // Password visibility state
+  const [showPassword, setShowPassword] = useState(false);
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -225,6 +230,7 @@ export default function AdminControls() {
     setNewUserPassword("");
     setNewUserRole("lead");
     setCreateUserError("");
+    setShowPassword(false);
   };
 
   // Delete user
@@ -783,15 +789,28 @@ export default function AdminControls() {
                         >
                           Password
                         </label>
-                        <input
-                          id="user-password"
-                          type="password"
-                          required
-                          value={newUserPassword}
-                          onChange={(e) => setNewUserPassword(e.target.value)}
-                          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                          placeholder="Enter user password"
-                        />
+                        <div className="relative mt-1">
+                          <input
+                            id="user-password"
+                            type={showPassword ? "text" : "password"}
+                            required
+                            value={newUserPassword}
+                            onChange={(e) => setNewUserPassword(e.target.value)}
+                            className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm pr-10"
+                            placeholder="Enter user password"
+                          />
+                          <button
+                            type="button"
+                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none"
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            {showPassword ? (
+                              <EyeOff className="h-5 w-5" aria-hidden="true" />
+                            ) : (
+                              <Eye className="h-5 w-5" aria-hidden="true" />
+                            )}
+                          </button>
+                        </div>
                       </div>
 
                       <div>
