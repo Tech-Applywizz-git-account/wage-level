@@ -28,19 +28,6 @@ export async function POST(req: Request) {
                 { status: 400 },
             );
         }
-
-        // 2. Insert into custom users table
-        const { error: dbError } = await supabaseAdmin
-            .from("users")
-            .insert([{ user_id: authData.user.id, email, role, country }]);
-
-        if (dbError) {
-            return Response.json({ error: dbError.message }, { status: 400 });
-        }
-
-        return Response.json({
-            message: "User created successfully!",
-        });
     } catch (error) {
         console.error("Error creating user:", error);
         return Response.json({ error: "Internal server error" }, { status: 500 });
