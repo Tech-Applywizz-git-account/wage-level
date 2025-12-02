@@ -182,9 +182,15 @@ function AppLayout({ children }: { children: React.ReactNode }) {
 
           {/* Left side: Disclaimer with red text */}
           <div className="flex items-center ml-4">
-           <p className="text-sm font-medium">
-  <span className="text-red-400">Disclaimer</span> : jobs posted today -  <span className="text-red-400 font-bold">{jobPostsTodayCount}</span>
-</p>
+        <p className="text-base font-medium">
+              <span className="text-red-400">Disclaimer</span> : 
+              <span className="text-red-400">
+                {" "}JOBS POSTED TODAY - {jobPostsTodayCount}
+              </span>
+                          <span className="text-sm text-muted-foreground ml-2">
+              (Updates dynamically if new jobs are posted)
+            </span>
+            </p>
           </div>
 
           {/* Right: User info (aligned right) */}
