@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { ExternalLink, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
@@ -58,7 +58,7 @@ export const SponsorshipTable = ({ jobs }: SponsorshipTableProps) => {
           <tbody className="divide-y divide-border">
             {jobs.map((job) => (
               <tr
-                key={job.id}
+                key={`${job.companyId}-${job.id}`}
                 className="hover:bg-accent/5 transition-smooth group"
               >
                 <td className="px-6 py-4 font-semibold">{job.companyName}</td>
@@ -114,9 +114,8 @@ export const SponsorshipTable = ({ jobs }: SponsorshipTableProps) => {
               const isOpen = expandedRow === job.id;
 
               return (
-                <>
+                <Fragment key={`${job.companyId}-${job.id}`}>
                   <tr
-                    key={job.id}
                     className="hover:bg-accent/5 transition-smooth"
                   >
                     <td className="px-4 py-3 font-semibold">
@@ -186,7 +185,7 @@ export const SponsorshipTable = ({ jobs }: SponsorshipTableProps) => {
                       </div>
                     </td>
                   </tr>
-                </>
+                </Fragment>
               );
             })}
           </tbody>
