@@ -198,12 +198,14 @@ const Overview = () => {
                   </div>
                   
                   {/* Job Count Display */}
-                  <div className="text-right">
-                    <p className="text-2xl sm:text-3xl font-bold text-primary">{jobPostsTodayCount}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {selectedDate === "today" ? "today" : "selected date"}
-                    </p>
-                  </div>
+                 <div className="text-right">
+          <p className="text-2xl sm:text-3xl font-bold" style={{ color: '#ff6565' }}>
+            {jobPostsTodayCount}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {selectedDate === "today" ? "today" : "selected date"}
+          </p>
+        </div>
                 </div>
               </div>
             </div>
