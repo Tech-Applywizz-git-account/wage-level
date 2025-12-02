@@ -9,7 +9,6 @@ interface CompanyCardProps {
   name: string;
   sponsored_jobs: number;
 }
-
 export const CompanyCard = ({ id, name, sponsored_jobs }: CompanyCardProps) => {
   return (
     <Link
