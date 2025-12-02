@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { LogOut, User, Menu } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
@@ -14,7 +14,23 @@ function AppLayout({ children }: { children: React.ReactNode }) {
   const { user, signOut, loading } = useAuth();
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [jobPostsTodayCount, setJobPostsTodayCount] = useState<number>(0);
   const isAuthPage = pathname === "/auth/set-password" || pathname === "/";
+
+  useEffect(() => {
+    if (user && !isAuthPage) {
+      const fetchJobPostsToday = async () => {
+        try {
+          const res = await fetch("/api/job-posts-today");
+          const data = await res.json();
+          setJobPostsTodayCount(data.job_posts_today || 0);
+        } catch (err) {
+          console.error("Error fetching job posts:", err);
+        }
+      };
+      fetchJobPostsToday();
+    }
+  }, [user, isAuthPage]);
 
   if (loading) {
     return (
@@ -151,15 +167,24 @@ function AppLayout({ children }: { children: React.ReactNode }) {
       <div className="flex-1 flex flex-col">
         {/* Header */}
 
+               {/* Header */}
+
         <header className="border-b border-border bg-card h-16 flex items-center px-4 sm:px-6 lg:px-8">
           {/* Left: Mobile Menu Button (only on mobile) */}
-          <div className="flex items-center flex-1 lg:hidden">
+          <div className="lg:hidden">
             <button
               className="p-3 rounded-md hover:bg-muted text-muted-foreground transition-colors"
               onClick={() => setMobileMenuOpen(true)}
             >
-              <Menu className="h-6 w-6" /> {/* slightly larger icon */}
+              <Menu className="h-6 w-6" />
             </button>
+          </div>
+
+          {/* Left side: Disclaimer with red text */}
+          <div className="flex items-center ml-4">
+           <p className="text-sm font-medium">
+  <span className="text-red-400">Disclaimer</span> : jobs posted today -  <span className="text-red-400 font-bold">{jobPostsTodayCount}</span>
+</p>
           </div>
 
           {/* Right: User info (aligned right) */}
