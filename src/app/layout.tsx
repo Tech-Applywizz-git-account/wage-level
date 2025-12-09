@@ -15,20 +15,48 @@ function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [jobPostsTodayCount, setJobPostsTodayCount] = useState<number>(0);
-  const isAuthPage = pathname === "/auth/set-password" || pathname === "/";
+  
+  // FIX THIS LINE - Remove "/" check
+  const isAuthPage = pathname === "/auth/set-password";
+  
+  console.log("🟢 Debug:", {
+    pathname,
+    isAuthPage,
+    user: !!user,
+    shouldFetch: user && !isAuthPage
+  });
 
   useEffect(() => {
+    console.log("🟡 Fetching job posts count...");
+    
+    // This should now work since "/" is not considered an auth page
     if (user && !isAuthPage) {
+      console.log("🟡 Conditions met, fetching...");
+      
       const fetchJobPostsToday = async () => {
         try {
-          const res = await fetch("/api/job-posts-today");
+          console.log("🟡 Calling API...");
+          const res = await fetch("/api/job-posts-today?date=today");
           const data = await res.json();
-          setJobPostsTodayCount(data.job_posts_today || 0);
-        } catch (err) {
-          console.error("Error fetching job posts:", err);
+          
+          console.log("🟡 API Response:", data);
+          const count = data.job_posts_today || 0;
+          console.log("🟡 Setting count to:", count);
+          
+          setJobPostsTodayCount(count);
+        } catch (error) {
+          console.error("❌ Error fetching:", error);
+          setJobPostsTodayCount(0);
         }
       };
+      
       fetchJobPostsToday();
+    } else {
+      console.log("🟡 Not fetching because:", {
+        reason: !user ? "No user" : "On auth page",
+        user: !!user,
+        isAuthPage
+      });
     }
   }, [user, isAuthPage]);
 
