@@ -10,6 +10,7 @@ import Link from "next/link";
 import clsx from "clsx";
 import "./globals.css";
 
+
 function AppLayout({ children }: { children: React.ReactNode }) {
   const { user, signOut, loading } = useAuth();
   const pathname = usePathname();
