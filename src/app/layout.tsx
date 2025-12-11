@@ -16,7 +16,7 @@ function AppLayout({ children }: { children: React.ReactNode }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [jobPostsTodayCount, setJobPostsTodayCount] = useState<number>(0);
   
-// FIX THIS LINE - Remove "/" check
+  // FIX THIS LINE - Remove "/" check
   const isAuthPage = pathname === "/auth/set-password";
   
   // console.log("🟢 Debug:", {
@@ -35,13 +35,13 @@ function AppLayout({ children }: { children: React.ReactNode }) {
       
       const fetchJobPostsToday = async () => {
         try {
-          
+    
           const res = await fetch("/api/job-posts-today?date=today");
           const data = await res.json();
           
-          
+        
           const count = data.job_posts_today || 0;
-          
+        
           
           setJobPostsTodayCount(count);
         } catch (error) {
