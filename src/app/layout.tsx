@@ -19,29 +19,29 @@ function AppLayout({ children }: { children: React.ReactNode }) {
 // FIX THIS LINE - Remove "/" check
   const isAuthPage = pathname === "/auth/set-password";
   
-  console.log("🟢 Debug:", {
-    pathname,
-    isAuthPage,
-    user: !!user,
-    shouldFetch: user && !isAuthPage
-  });
+  // console.log("🟢 Debug:", {
+  //   pathname,
+  //   isAuthPage,
+  //   user: !!user,
+  //   shouldFetch: user && !isAuthPage
+  // });
 
   useEffect(() => {
-    console.log("🟡 Fetching job posts count...");
+    
     
     // This should now work since "/" is not considered an auth page
     if (user && !isAuthPage) {
-      console.log("🟡 Conditions met, fetching...");
+      
       
       const fetchJobPostsToday = async () => {
         try {
-          console.log("🟡 Calling API...");
+          
           const res = await fetch("/api/job-posts-today?date=today");
           const data = await res.json();
           
-          console.log("🟡 API Response:", data);
+          
           const count = data.job_posts_today || 0;
-          console.log("🟡 Setting count to:", count);
+          
           
           setJobPostsTodayCount(count);
         } catch (error) {
