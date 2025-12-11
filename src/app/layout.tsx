@@ -16,7 +16,7 @@ function AppLayout({ children }: { children: React.ReactNode }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [jobPostsTodayCount, setJobPostsTodayCount] = useState<number>(0);
   
-  // FIX THIS LINE - Remove "/" check
+// FIX THIS LINE - Remove "/" check
   const isAuthPage = pathname === "/auth/set-password";
   
   console.log("🟢 Debug:", {
