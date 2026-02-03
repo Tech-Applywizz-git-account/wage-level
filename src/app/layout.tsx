@@ -15,10 +15,10 @@ function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [jobPostsTodayCount, setJobPostsTodayCount] = useState<number>(0);
-  
+
   // FIX THIS LINE - Remove "/" check
   const isAuthPage = pathname === "/auth/set-password";
-  
+
   // console.log("🟢 Debug:", {
   //   pathname,
   //   isAuthPage,
@@ -27,29 +27,29 @@ function AppLayout({ children }: { children: React.ReactNode }) {
   // });
 
   useEffect(() => {
-    
-    
+
+
     // This should now work since "/" is not considered an auth page
     if (user && !isAuthPage) {
-      
-      
+
+
       const fetchJobPostsToday = async () => {
         try {
-    
+
           const res = await fetch("/api/job-posts-today?date=today");
           const data = await res.json();
-          
-        
+
+
           const count = data.job_posts_today || 0;
-        
-          
+
+
           setJobPostsTodayCount(count);
         } catch (error) {
           console.error("❌ Error fetching:", error);
           setJobPostsTodayCount(0);
         }
       };
-      
+
       fetchJobPostsToday();
     } else {
       console.log("🟡 Not fetching because:", {
@@ -71,7 +71,13 @@ function AppLayout({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (isAuthPage && !user) {
+  // If user is not logged in, show only the children (login page) without sidebar
+  if (!user) {
+    return <main>{children}</main>;
+  }
+
+  // If on auth page and user exists, still allow access
+  if (isAuthPage) {
     return <main>{children}</main>;
   }
 
@@ -168,13 +174,12 @@ function AppLayout({ children }: { children: React.ReactNode }) {
               <span className="truncate">{user.email}</span>
               {user.role && (
                 <span
-                  className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                    user.role === "admin"
+                  className={`px-2 py-0.5 rounded-full text-xs font-medium ${user.role === "admin"
                       ? "bg-destructive/10 text-destructive"
                       : user.role === "lead"
                         ? "bg-primary/10 text-primary"
                         : "bg-muted text-foreground"
-                  }`}
+                    }`}
                 >
                   {user.role}
                 </span>
@@ -195,7 +200,7 @@ function AppLayout({ children }: { children: React.ReactNode }) {
       <div className="flex-1 flex flex-col">
         {/* Header */}
 
-               {/* Header */}
+        {/* Header */}
 
         <header className="border-b border-border bg-card h-16 flex items-center px-4 sm:px-6 lg:px-8">
           {/* Left: Mobile Menu Button (only on mobile) */}
@@ -210,14 +215,14 @@ function AppLayout({ children }: { children: React.ReactNode }) {
 
           {/* Left side: Disclaimer with red text */}
           <div className="flex items-center ml-4">
-        <p className="text-base font-medium">
-              <span className="text-red-400">Disclaimer</span> : 
+            <p className="text-base font-medium">
+              <span className="text-red-400">Disclaimer</span> :
               <span className="text-red-400">
                 {" "}JOBS POSTED TODAY - {jobPostsTodayCount}
               </span>
-                          <span className="text-sm text-muted-foreground ml-2">
-              (Updates dynamically if new jobs are posted)
-            </span>
+              <span className="text-sm text-muted-foreground ml-2">
+                (Updates dynamically if new jobs are posted)
+              </span>
             </p>
           </div>
 
@@ -231,13 +236,12 @@ function AppLayout({ children }: { children: React.ReactNode }) {
                 </span>
                 {user.role && (
                   <span
-                    className={`px-2.5 py-1 rounded-full text-xs font-semibold capitalize ${
-                      user.role === "admin"
+                    className={`px-2.5 py-1 rounded-full text-xs font-semibold capitalize ${user.role === "admin"
                         ? "bg-destructive/10 text-destructive"
                         : user.role === "lead"
                           ? "bg-primary/10 text-primary"
                           : "bg-muted text-foreground"
-                    }`}
+                      }`}
                   >
                     {user.role}
                   </span>

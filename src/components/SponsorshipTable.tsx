@@ -1,9 +1,9 @@
 "use client";
 
-import { Fragment, useState } from "react";
-import { ExternalLink, ChevronDown, ChevronUp } from "lucide-react";
+import { MapPin, Clock, Star, ExternalLink, CheckCircle2 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
+import { H1BWageData } from "../lib/types/job";
 
 interface Job {
   id: number;
@@ -15,6 +15,7 @@ interface Job {
   postedDate: string;
   jobLink: string;
   sponsorship: boolean;
+  h1bWageData?: H1BWageData;
 }
 
 interface SponsorshipTableProps {
@@ -22,175 +23,175 @@ interface SponsorshipTableProps {
 }
 
 export const SponsorshipTable = ({ jobs }: SponsorshipTableProps) => {
-  const [expandedRow, setExpandedRow] = useState<number | null>(null);
+  // Helper to get wage level from H1B data
+  const getWageLevel = (wageData?: H1BWageData): number => {
+    if (!wageData) return 3; // Default to Level 3
 
-  const toggleRow = (id: number) => {
-    setExpandedRow((prev) => (prev === id ? null : id));
+    const { wage_level_1, wage_level_2, wage_level_3, wage_level_4, prevailing_wage } = wageData;
+
+    if (!prevailing_wage) return 3;
+
+    const wage = parseFloat(prevailing_wage.toString());
+    const level1 = parseFloat(wage_level_1?.toString() || '0');
+    const level2 = parseFloat(wage_level_2?.toString() || '0');
+    const level3 = parseFloat(wage_level_3?.toString() || '0');
+    const level4 = parseFloat(wage_level_4?.toString() || '0');
+
+    if (wage >= level4) return 4;
+    if (wage >= level3) return 3;
+    if (wage >= level2) return 2;
+    return 1;
+  };
+
+  // Helper to render stars based on wage level
+  const renderStars = (level: number) => {
+    return (
+      <div className="flex gap-1">
+        {[1, 2, 3, 4].map((star) => (
+          <Star
+            key={star}
+            className={`h-5 w-5 ${star <= level
+              ? "fill-yellow-400 text-yellow-400"
+              : "fill-none text-gray-300"
+              }`}
+          />
+        ))}
+      </div>
+    );
+  };
+
+  // Helper to format date
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
+  };
+
+  // Helper to extract years of experience from role title
+  const getYearsExperience = (role: string): string => {
+    // Common patterns: "5-6 Years", "5+ Years", "Senior (5+ years)"
+    const patterns = [
+      /(\d+)-(\d+)\s*years?/i,
+      /(\d+)\+?\s*years?/i,
+    ];
+
+    for (const pattern of patterns) {
+      const match = role.match(pattern);
+      if (match) {
+        if (match[2]) {
+          return `${match[1]}-${match[2]} Years`;
+        }
+        return `${match[1]}+ Years`;
+      }
+    }
+
+    // Default based on seniority keywords
+    const lowerRole = role.toLowerCase();
+    if (lowerRole.includes('senior') || lowerRole.includes('sr.')) return '5-6 Years';
+    if (lowerRole.includes('lead') || lowerRole.includes('principal')) return '7+ Years';
+    if (lowerRole.includes('junior') || lowerRole.includes('jr.')) return '0-2 Years';
+    if (lowerRole.includes('mid')) return '3-5 Years';
+
+    return '3-5 Years'; // Default
   };
 
   return (
-    <Card className="overflow-hidden animate-slide-up border-primary/10">
-      {/* 🖥️ Desktop Table */}
-      <div className="overflow-x-auto hidden sm:block">
-        <table className="w-full">
-          <thead className="bg-gradient-to-r from-primary/5 to-accent/5">
-            <tr>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">
-                Company
-              </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">
-                Role
-              </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">
-                Domain
-              </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">
-                Location
-              </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">
-                Posted
-              </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">
-                Link
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
-            {jobs.map((job) => (
-              <tr
-                key={`${job.companyId}-${job.id}`}
-                className="hover:bg-accent/5 transition-smooth group"
-              >
-                <td className="px-6 py-4 font-semibold">{job.companyName}</td>
-                <td className="px-6 py-4">{job.role}</td>
-                <td className="px-6 py-4 text-sm text-muted-foreground">
-                  {job.domainName}
-                </td>
-                <td className="px-6 py-4 text-sm text-muted-foreground">
-                  {job.location}
-                </td>
-                <td className="px-6 py-4 text-sm text-muted-foreground">
-                  {new Date(job.postedDate).toLocaleDateString()}
-                </td>
-                <td className="px-6 py-4">
-                  <Button
-                    size="sm"
-                    className="bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground transition-smooth group-hover:scale-105"
-                    asChild
+    <div className="space-y-4">
+      {jobs.map((job) => {
+        const wageLevel = getWageLevel(job.h1bWageData);
+        const yearsExp = getYearsExperience(job.role);
+
+        return (
+          <Card
+            key={`${job.companyId}-${job.id}`}
+            className="p-6 hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/30"
+          >
+            <div className="flex flex-col lg:flex-row gap-6">
+              {/* Left: Company Logo */}
+              <div className="flex-shrink-0">
+                <div className="w-32 h-32 border-2 border-gray-200 rounded-lg flex items-center justify-center bg-white p-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-gray-400 break-words">
+                      {job.companyName.split(' ').map(word => word[0]).join('').slice(0, 3).toUpperCase()}
+                    </div>
+                  </div>
+                </div>
+                {/* Human Verified Badge */}
+                <div className="mt-3 flex items-center justify-center gap-2 bg-green-700 text-white px-3 py-1.5 rounded-md text-sm font-medium">
+                  <CheckCircle2 className="h-4 w-4" />
+                  Human Verified
+                </div>
+              </div>
+
+              {/* Middle: Job Details */}
+              <div className="flex-1 space-y-3">
+                {/* Company Name */}
+                <h2 className="text-2xl font-bold text-foreground">
+                  {job.companyName}
+                </h2>
+
+                {/* Job Role */}
+                <div className="flex items-start gap-2">
+                  <span className="font-semibold text-foreground min-w-[100px]">Job Role</span>
+                  <span className="text-foreground">:</span>
+                  <span className="text-foreground">{job.role}</span>
+                </div>
+
+                {/* Job Type (from job_role_name) */}
+                <div className="flex items-start gap-2">
+                  <span className="font-semibold text-foreground min-w-[100px]">Job Type</span>
+                  <span className="text-foreground">:</span>
+                  <span className="text-foreground">{job.domainName}</span>
+                </div>
+
+                {/* Date Posted */}
+                <div className="flex items-start gap-2">
+                  <span className="font-semibold text-foreground min-w-[100px]">Date Posted</span>
+                  <span className="text-foreground">:</span>
+                  <span className="text-foreground">{formatDate(job.postedDate)}</span>
+                </div>
+
+                {/* Location and Experience */}
+                <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mt-2">
+                  <div className="flex items-center gap-1">
+                    <MapPin className="h-4 w-4" />
+                    <span>{job.location}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Clock className="h-4 w-4" />
+                    <span>{yearsExp}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right: Wage Level and Apply Button */}
+              <div className="flex flex-col items-center justify-between gap-4 lg:min-w-[180px]">
+                {/* Wage Level Badge */}
+                <div className="bg-gradient-to-br from-blue-900 to-blue-800 text-white rounded-xl p-6 text-center shadow-lg w-full">
+                  {renderStars(wageLevel)}
+                  <div className="text-4xl font-bold mt-2">Lv {wageLevel}</div>
+                  <div className="text-sm mt-1 opacity-90">Wage Level</div>
+                </div>
+
+                {/* Apply Now Button */}
+                <Button
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-6 text-lg rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
+                  asChild
+                >
+                  <a
+                    href={job.jobLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2"
                   >
-                    <a
-                      href={job.jobLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      View Job <ExternalLink className="h-3 w-3 ml-1" />
-                    </a>
-                  </Button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* 📱 Mobile Collapsible Table */}
-      <div className="block sm:hidden">
-        <table className="w-full">
-          <thead className="bg-gradient-to-r from-primary/5 to-accent/5">
-            <tr>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-foreground">
-                Company
-              </th>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-foreground">
-                Link
-              </th>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-foreground">
-                Details
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
-            {jobs.map((job) => {
-              const isOpen = expandedRow === job.id;
-
-              return (
-                <Fragment key={`${job.companyId}-${job.id}`}>
-                  <tr
-                    className="hover:bg-accent/5 transition-smooth"
-                  >
-                    <td className="px-4 py-3 font-semibold">
-                      {job.companyName}
-                    </td>
-                    <td className="px-4 py-3">
-                      <Button
-                        size="sm"
-                        className="bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground"
-                        asChild
-                      >
-                        <a
-                          href={job.jobLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <ExternalLink className="h-4 w-4" />
-                        </a>
-                      </Button>
-                    </td>
-                    <td className="px-4 py-3">
-                      <button
-                        onClick={() => toggleRow(job.id)}
-                        className="text-primary flex items-center gap-1 text-sm"
-                      >
-                        {isOpen ? (
-                          <>
-                            Hide <ChevronUp className="h-4 w-4" />
-                          </>
-                        ) : (
-                          <>
-                            View <ChevronDown className="h-4 w-4" />
-                          </>
-                        )}
-                      </button>
-                    </td>
-                  </tr>
-
-                  {/* Animated collapsible row */}
-                  <tr>
-                    <td colSpan={3} className="px-4 pt-0">
-                      <div
-                        className={`transition-all duration-300 ease-in-out overflow-hidden ${
-                          isOpen
-                            ? "max-h-40 opacity-100 mt-2"
-                            : "max-h-0 opacity-0"
-                        }`}
-                      >
-                        <div className="bg-muted/30 rounded-md p-3 space-y-1 text-sm">
-                          <p>
-                            <span className="font-semibold">Role:</span>{" "}
-                            {job.role}
-                          </p>
-                          <p>
-                            <span className="font-semibold">Domain:</span>{" "}
-                            {job.domainName}
-                          </p>
-                          <p>
-                            <span className="font-semibold">Location:</span>{" "}
-                            {job.location}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            Posted{" "}
-                            {new Date(job.postedDate).toLocaleDateString()}
-                          </p>
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
-                </Fragment>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-    </Card>
+                    Apply Now
+                    <ExternalLink className="h-5 w-5" />
+                  </a>
+                </Button>
+              </div>
+            </div>
+          </Card>
+        );
+      })}
+    </div>
   );
 };

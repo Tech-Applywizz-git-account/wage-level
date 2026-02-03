@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/contexts/AuthContext";
 import Overview from "@/components/Overview";
-import LoginPage from "@/components/LoginPage";
+import LandingPage from "@/components/LandingPage";
 
 export default function RootPage() {
   const { user, loading } = useAuth();
@@ -22,5 +22,5 @@ export default function RootPage() {
     return <Overview />;
   }
 
-  return <LoginPage />;
+  return <LandingPage />;
 }

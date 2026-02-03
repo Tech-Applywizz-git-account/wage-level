@@ -6,11 +6,29 @@ interface KPICardProps {
   value: number;
   icon: LucideIcon;
   trend?: string;
+  onClick?: () => void;
+  clickable?: boolean;
 }
 
-export const KPICard = ({ title, value, icon: Icon, trend }: KPICardProps) => {
+export const KPICard = ({ title, value, icon: Icon, trend, onClick, clickable }: KPICardProps) => {
+
+  const handleClick = () => {
+    console.log(`KPICard clicked: ${title}`);
+    if (onClick) {
+      console.log('Executing onClick handler...');
+      onClick();
+    } else {
+      console.log('No onClick handler provided');
+    }
+  };
+
   return (
-    <Card className="p-6 hover:shadow-lg transition-smooth animate-slide-up border-primary/10 bg-gradient-to-br from-card to-card/50 group">
+    <div
+      className={`rounded-lg border bg-card text-card-foreground shadow-sm p-6 hover:shadow-lg transition-smooth animate-slide-up border-primary/10 bg-gradient-to-br from-card to-card/50 group ${clickable ? 'cursor-pointer hover:scale-105 active:scale-95' : ''
+        }`}
+      onClick={clickable ? handleClick : undefined}
+      style={{ transition: 'all 0.2s ease' }}
+    >
       <div className="flex items-start justify-between">
         <div className="space-y-2">
           <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
@@ -30,6 +48,6 @@ export const KPICard = ({ title, value, icon: Icon, trend }: KPICardProps) => {
           <Icon className="h-6 w-6 text-primary" />
         </div>
       </div>
-    </Card>
+    </div>
   );
 };

@@ -6,9 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 
 interface Domain {
-  id: string; // role itself
+  id: string; // role itself (for navigation)
   name: string;
   category: "tech" | "non-tech";
+  uniqueKey: string; // unique key for React list rendering
 }
 
 const Domains = () => {
@@ -25,10 +26,13 @@ const Domains = () => {
         const res = await fetch("/api/domain");
         const data = await res.json();
 
-        const mapped = data.map((item: any) => ({
-          id: item.role,
+        // Create unique IDs for React keys
+        // Use role name for navigation, but ensure unique keys
+        const mapped = data.map((item: any, index: number) => ({
+          id: item.role, // Keep original role for navigation
           name: item.role,
           category: item.isTech ? "tech" : "non-tech",
+          uniqueKey: `${item.role}-${index}`, // For React key prop
         }));
 
         setDomains(mapped);
@@ -124,7 +128,7 @@ const Domains = () => {
         >
           {filteredDomains.map((domain) => (
             <DomainCard
-              key={domain.id}
+              key={domain.uniqueKey}
               id={encodeURIComponent(domain.id)}
               name={domain.name}
               icon="" // not using icons
