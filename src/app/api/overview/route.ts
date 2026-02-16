@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
     const formattedLastWeekStart = lastWeekStart.toISOString().split("T")[0];
 
     // Determine filtering mode
-    let isLastWeek = dateParam === "last_week";
+    const isLastWeek = dateParam === "last_week";
     const targetDate = dateParam === "today"
       ? now.toISOString().split("T")[0]
       : dateParam;

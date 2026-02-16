@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
         const states = statesParam ? statesParam.split(",") : [];
 
         // Start with base query
-        let query = supabase
+        const query = supabase
             .from("job_jobrole_sponsored")
             .select("id, company, title, job_role_name, location, date_posted, url, sponsored_job");
 

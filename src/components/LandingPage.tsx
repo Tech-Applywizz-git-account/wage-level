@@ -1008,7 +1008,7 @@ const HomePage: React.FC = () => {
                     >
                         <p className="text-sm font-bold tracking-wider uppercase text-purple-700">Contact</p>
                         <h2 className="text-4xl font-bold text-gray-900">Chat with our WhatsApp support</h2>
-                        <p className="text-base text-gray-600">Need help getting started? Reach our team directly on WhatsApp and we'll respond quickly.</p>
+                        <p className="text-base text-gray-600">Need help getting started? Reach our team directly on WhatsApp and we&apos;ll respond quickly.</p>
                         <div>
                             <div className="relative inline-block">
                                 <a

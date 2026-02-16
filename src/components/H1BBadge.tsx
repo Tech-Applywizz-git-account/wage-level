@@ -47,7 +47,7 @@ export const H1BBadge = ({ wageData, compact = false }: H1BBadgeProps) => {
                             H1B Wage Level {wageData.level} - {levelInfo.name}
                         </h4>
                         <div className="space-y-1 text-sm text-gray-700">
-                            <p>• Bachelor's degree + {levelInfo.experience} experience</p>
+                            <p>• Bachelor&apos;s degree + {levelInfo.experience} experience</p>
                             <p>• {levelInfo.description}</p>
                             <p>• {levelInfo.percentile} percentile wage level</p>
                             {wageData.onetCode && (
