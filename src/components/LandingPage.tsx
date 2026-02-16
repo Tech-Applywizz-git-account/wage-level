@@ -9,8 +9,7 @@ import {
     ChevronLeft,
     ChevronRight,
     LogIn,
-    ChevronDown,
-    ChevronDownIcon,
+
     Eye,
     EyeOff,
     MessageCircle,
@@ -65,7 +64,7 @@ const LoginModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
         try {
             await new Promise((resolve) => setTimeout(resolve, 700));
             router.push("/login");
-        } catch (err) {
+        } catch {
             setError("Invalid credentials. Please try again.");
         } finally {
             setLoading(false);
@@ -170,9 +169,7 @@ const HomePage: React.FC = () => {
     const [currentTestimonial, setCurrentTestimonial] = useState(0);
     const [isAutoPlaying, setIsAutoPlaying] = useState(true);
     const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-    const [productsOpen, setProductsOpen] = useState(false);
-    const [open, setOpen] = useState(false);
-    const [message, setMessage] = useState("");
+
     const [isFloatingWhatsAppDropdownOpen, setIsFloatingWhatsAppDropdownOpen] = useState(false);
     const [isContactWhatsAppDropdownOpen, setIsContactWhatsAppDropdownOpen] = useState(false);
     const [selectedWhatsAppNumber, setSelectedWhatsAppNumber] = useState("917997719878");
@@ -581,21 +578,27 @@ const HomePage: React.FC = () => {
                                     className="absolute bottom-4 right-4 bg-white rounded-full px-4 py-2 shadow-lg flex items-center gap-2"
                                 >
                                     <div className="flex -space-x-2">
-                                        <img
-                                            src="https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=32&h=32&fit=crop&crop=face"
-                                            alt="User 1"
-                                            className="w-8 h-8 rounded-full border-2 border-white"
-                                        />
-                                        <img
-                                            src="https://images.pexels.com/photos/3764013/pexels-photo-3764013.jpeg?auto=compress&cs=tinysrgb&w=32&h=32&fit=crop&crop=face"
-                                            alt="User 2"
-                                            className="w-8 h-8 rounded-full border-2 border-white"
-                                        />
-                                        <img
-                                            src="https://images.pexels.com/photos/2586823/pexels-photo-2586823.jpeg?auto=compress&cs=tinysrgb&w=32&h=32&fit=crop&crop=face"
-                                            alt="User 3"
-                                            className="w-8 h-8 rounded-full border-2 border-white"
-                                        />
+                                        <div className="w-8 h-8 rounded-full border-2 border-white overflow-hidden relative">
+                                            <img
+                                                src="https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=32&h=32&fit=crop&crop=face"
+                                                alt="User 1"
+                                                className="w-full h-full object-cover"
+                                            />
+                                        </div>
+                                        <div className="w-8 h-8 rounded-full border-2 border-white overflow-hidden relative">
+                                            <img
+                                                src="https://images.pexels.com/photos/3764013/pexels-photo-3764013.jpeg?auto=compress&cs=tinysrgb&w=32&h=32&fit=crop&crop=face"
+                                                alt="User 2"
+                                                className="w-full h-full object-cover"
+                                            />
+                                        </div>
+                                        <div className="w-8 h-8 rounded-full border-2 border-white overflow-hidden relative">
+                                            <img
+                                                src="https://images.pexels.com/photos/2586823/pexels-photo-2586823.jpeg?auto=compress&cs=tinysrgb&w=32&h=32&fit=crop&crop=face"
+                                                alt="User 3"
+                                                className="w-full h-full object-cover"
+                                            />
+                                        </div>
                                     </div>
                                     <span className="text-sm text-gray-600">10K+ Active users</span>
                                 </motion.div>
