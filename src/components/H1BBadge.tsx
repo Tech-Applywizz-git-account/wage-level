@@ -15,11 +15,12 @@ interface H1BBadgeProps {
 }
 
 export const H1BBadge = ({ wageData, compact = false }: H1BBadgeProps) => {
-    const levelInfo = WAGE_LEVEL_INFO[wageData.level];
+    const levelInfo = wageData.level ? WAGE_LEVEL_INFO[wageData.level] : undefined;
 
     if (!levelInfo) return null;
 
-    const formatCurrency = (amount: number) => {
+    const formatCurrency = (amount: number | undefined) => {
+        if (!amount) return "$0";
         return `$${(amount / 1000).toFixed(0)}K`;
     };
 
@@ -77,7 +78,7 @@ export const H1BBadge = ({ wageData, compact = false }: H1BBadgeProps) => {
 
 // Compact version for mobile/table cells
 export const H1BBadgeCompact = ({ wageData }: H1BBadgeProps) => {
-    const levelInfo = WAGE_LEVEL_INFO[wageData.level];
+    const levelInfo = wageData.level ? WAGE_LEVEL_INFO[wageData.level] : undefined;
 
     if (!levelInfo) return null;
 
@@ -95,7 +96,7 @@ export const H1BBadgeCompact = ({ wageData }: H1BBadgeProps) => {
                         <div className="space-y-1 text-xs">
                             <p className="font-semibold">{levelInfo.name}</p>
                             <p>{levelInfo.experience}</p>
-                            <p>${(wageData.wageMin / 1000).toFixed(0)}K - ${(wageData.wageMax / 1000).toFixed(0)}K</p>
+                            <p>${((wageData.wageMin || 0) / 1000).toFixed(0)}K - ${((wageData.wageMax || 0) / 1000).toFixed(0)}K</p>
                         </div>
                     </TooltipContent>
                 </Tooltip>
