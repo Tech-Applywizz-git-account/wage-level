@@ -555,6 +555,7 @@ const HomePage: React.FC = () => {
                             className="relative"
                         >
                             <div className="relative">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img
                                     src="/hero-image.png"
                                     alt="Professional using laptop"
@@ -579,6 +580,7 @@ const HomePage: React.FC = () => {
                                 >
                                     <div className="flex -space-x-2">
                                         <div className="w-8 h-8 rounded-full border-2 border-white overflow-hidden relative">
+                                            {/* eslint-disable-next-line @next/next/no-img-element */}
                                             <img
                                                 src="https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=32&h=32&fit=crop&crop=face"
                                                 alt="User 1"
@@ -586,6 +588,7 @@ const HomePage: React.FC = () => {
                                             />
                                         </div>
                                         <div className="w-8 h-8 rounded-full border-2 border-white overflow-hidden relative">
+                                            {/* eslint-disable-next-line @next/next/no-img-element */}
                                             <img
                                                 src="https://images.pexels.com/photos/3764013/pexels-photo-3764013.jpeg?auto=compress&cs=tinysrgb&w=32&h=32&fit=crop&crop=face"
                                                 alt="User 2"
@@ -593,6 +596,7 @@ const HomePage: React.FC = () => {
                                             />
                                         </div>
                                         <div className="w-8 h-8 rounded-full border-2 border-white overflow-hidden relative">
+                                            {/* eslint-disable-next-line @next/next/no-img-element */}
                                             <img
                                                 src="https://images.pexels.com/photos/2586823/pexels-photo-2586823.jpeg?auto=compress&cs=tinysrgb&w=32&h=32&fit=crop&crop=face"
                                                 alt="User 3"
@@ -664,6 +668,7 @@ const HomePage: React.FC = () => {
                             >
                                 <div className={glow} />
                                 <div className={`${innerCard} flex flex-col items-center text-center ${card.bgColor} h-full`}>
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img
                                         src={card.iconSrc}
                                         alt={card.title}
@@ -685,6 +690,7 @@ const HomePage: React.FC = () => {
                     <div className="gallery-track">
                         {[...galleryImages, ...galleryImages].map((src, index) => (
                             <div key={`g-${index}`} className="flex-shrink-0 mx-4">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img
                                     src={src}
                                     alt={`Gallery image ${index + 1}`}
@@ -771,6 +777,7 @@ const HomePage: React.FC = () => {
                                     <div className={glow} />
                                     <div className={`${innerCard} text-center ${card.bgColor} h-full`}>
                                         <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-white flex items-center justify-center">
+                                            {/* eslint-disable-next-line @next/next/no-img-element */}
                                             <img src={card.image} alt={card.title} className="w-12 h-12 object-contain" />
                                         </div>
                                         <h3 className="text-xl font-semibold mb-4">{card.title}</h3>
@@ -911,6 +918,7 @@ const HomePage: React.FC = () => {
                                     </div>
                                     <p className="text-gray-700 mb-4">{testimonial.text}</p>
                                     <div className="flex items-center gap-3">
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
                                         <img src={testimonial.image} alt={testimonial.name} className="w-10 h-10 rounded-full" />
                                         <div>
                                             <div className="font-semibold">{testimonial.name}</div>
@@ -943,6 +951,7 @@ const HomePage: React.FC = () => {
                                                     </div>
                                                     <p className="text-gray-700 mb-4">{testimonial.text}</p>
                                                     <div className="flex items-center gap-3 mt-auto">
+                                                        {/* eslint-disable-next-line @next/next/no-img-element */}
                                                         <img src={testimonial.image} alt={testimonial.name} className="w-10 h-10 rounded-full" />
                                                         <div>
                                                             <div className="font-semibold">{testimonial.name}</div>
