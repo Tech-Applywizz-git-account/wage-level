@@ -16,7 +16,7 @@ import {
     MessageCircle,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { div } from "framer-motion/client";
+
 
 // ---------- Animation Variants ----------
 
@@ -333,8 +333,8 @@ const HomePage: React.FC = () => {
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className={`block px-4 py-2 text-sm ${selectedWhatsAppNumber === whatsapp.number
-                                        ? "bg-blue-50 text-blue-700 font-medium"
-                                        : "text-gray-700 hover:bg-gray-100"
+                                    ? "bg-blue-50 text-blue-700 font-medium"
+                                    : "text-gray-700 hover:bg-gray-100"
                                     }`}
                                 onClick={(e) => {
                                     e.stopPropagation();
@@ -1048,8 +1048,8 @@ const HomePage: React.FC = () => {
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className={`block px-4 py-2 text-sm ${selectedWhatsAppNumber === whatsapp.number
-                                                            ? "bg-blue-50 text-blue-700 font-medium"
-                                                            : "text-gray-700 hover:bg-gray-100"
+                                                        ? "bg-blue-50 text-blue-700 font-medium"
+                                                        : "text-gray-700 hover:bg-gray-100"
                                                         }`}
                                                     onClick={() => {
                                                         setSelectedWhatsAppNumber(whatsapp.number);
